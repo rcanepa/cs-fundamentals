@@ -1,0 +1,16 @@
+{
+  "name": "cs-fundamentals",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "npm test -- --watch"
+  },
+  "keywords": [],
+  "author": "Renzo Canepa",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^20.0.4"
+  }
+}
