@@ -1,20 +1,20 @@
+"use strict";
 const utils = require("../utils");
 
-var start, end;
 var testSizes = [100];
 var testTimeResults = [];
 
 testSizes.forEach(n => {
-  var toBeSorted, sorted, pivot, minValue, minIndex;
+  var toBeSorted, sorted;
+  var startTime, endTime;
   toBeSorted = utils.createRandomArray(n);
-  pivot = 0;
-  start = +new Date();
+  startTime = +new Date();
 
   sorted = insertionSort(toBeSorted);
 
-  end = +new Date();
-  console.log(`n=${n} took ${end - start}ms`);
-  testTimeResults.push(end - start);
+  endTime = +new Date();
+  console.log(`n=${n} took ${endTime - startTime}ms`);
+  testTimeResults.push(endTime - startTime);
 
   // Check if the array is sorted
   utils.isSorted(sorted);
