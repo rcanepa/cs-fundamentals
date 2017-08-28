@@ -1,25 +1,38 @@
-const fs = require("fs");
+"use strict";
 const utils = require("../utils");
 
-var start, end, garbage;
-var unSortedArray = [];
+var start, end;
 var testSizes = [100, 1000, 10000, 100000];
 var testTimeResults = [];
 
-for (let i = 0; i < testSizes[testSizes.length - 1]; i++) {
-  unSortedArray[i] = Math.floor(Math.random() * 100000);
-}
-
 testSizes.forEach(n => {
-  var toBeSorted, pivot, minValue, minIndex;
-  toBeSorted = unSortedArray.slice(0, n);
+  var toBeSorted, sorted;
+  toBeSorted = utils.createRandomArray(n);
+  start = +new Date();
+
+  sorted = selectionSort(toBeSorted);
+
+  end = +new Date();
+  console.log(`n=${n} took ${end - start}ms`);
+  testTimeResults.push(end - start);
+
+  // Check if the collection is sorted
+  utils.isSorted(sorted);
+});
+
+function selectionSort(srcArray) {
+  var toBeSorted, pivot, minValue, minIndex, n;
+  n = srcArray.length;
+  toBeSorted = srcArray.slice(0, n);
   pivot = 0;
   start = +new Date();
   while (pivot < n) {
+    // O(n)
     var temp;
     minValue = toBeSorted[pivot];
     minIndex = pivot;
     for (var i = pivot; i < n; i++) {
+      // O(n)
       if (toBeSorted[i] < minValue) {
         minValue = toBeSorted[i];
         minIndex = i;
@@ -30,29 +43,5 @@ testSizes.forEach(n => {
     toBeSorted[minIndex] = temp;
     pivot++;
   }
-  end = +new Date();
-  console.log(`n=${n} took ${end - start}ms`);
-  testTimeResults.push(end - start);
-
-  if (
-    JSON.stringify(toBeSorted, null, 2) !==
-    JSON.stringify(
-      unSortedArray.slice(0, n).sort(utils.compareNumbers),
-      null,
-      2
-    )
-  )
-    throw new Error(`The array wasn't correctly sorted.`);
-  /*
-  // Validate sorting result
-  var filename = `selection_sort_${n}.out`;
-  fs.writeFile(filename, toBeSorted.join("\n"), err => {
-    if (err) console.log(`Error writing file ${filename}: ${err}`);
-  });
-  fs.writeFile(
-    `${filename}.comp`,
-    unSortedArray.slice(0, n).sort(utils.compareNumbers).join("\n"),
-    () => {}
-  );
-  */
-});
+  return toBeSorted;
+}
