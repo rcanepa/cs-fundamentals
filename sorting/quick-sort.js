@@ -1,7 +1,7 @@
 "use strict";
 const utils = require("../utils");
 
-var testSizes = [100, 1000, 10000, 100000, 1000000];
+var testSizes = [100, 1000, 10000, 100000, 1000000, 10000000];
 var testTimeResults = [];
 
 testSizes.forEach(n => {
@@ -25,6 +25,9 @@ function swap(array, i, j) {
   array[j] = temp;
 }
 
+/*
+// This implementation appears on Algorithms Fourth Edition 
+// by Robert Sedgewick and Kevin Wayne
 function partition(array, low, high) {
   // array[low] is the pivot
   var lIndex = low;
@@ -41,6 +44,21 @@ function partition(array, low, high) {
   // Swap the pivot to its final position
   swap(array, rIndex, low);
   return rIndex;
+}
+*/
+
+function partition(array, low, high) {
+  // The pivot is the first element of the array (array[low])
+  var searchIndex = low + 1;
+  for (var i = searchIndex; i <= high; i++) {
+    if (array[i] < array[low]) {
+      swap(array, i, searchIndex);
+      searchIndex++;
+    }
+  }
+  searchIndex--;
+  swap(array, low, searchIndex);
+  return searchIndex;
 }
 
 function sort(array, low, high) {
