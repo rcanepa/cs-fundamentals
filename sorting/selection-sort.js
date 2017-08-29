@@ -21,27 +21,27 @@ testSizes.forEach(n => {
 });
 
 function selectionSort(srcArray) {
-  var toBeSorted, pivot, minValue, minIndex, n;
+  var toBeSorted, wall, minValue, minIndex, n;
   n = srcArray.length;
   toBeSorted = srcArray.slice(0, n);
-  pivot = 0;
+  wall = 0;
   start = +new Date();
-  while (pivot < n) {
+  while (wall < n) {
     // O(n)
     var temp;
-    minValue = toBeSorted[pivot];
-    minIndex = pivot;
-    for (var i = pivot; i < n; i++) {
+    minValue = toBeSorted[wall];
+    minIndex = wall;
+    for (var i = wall; i < n; i++) {
       // O(n)
       if (toBeSorted[i] < minValue) {
         minValue = toBeSorted[i];
         minIndex = i;
       }
     }
-    temp = toBeSorted[pivot];
-    toBeSorted[pivot] = toBeSorted[minIndex];
+    temp = toBeSorted[wall];
+    toBeSorted[wall] = toBeSorted[minIndex];
     toBeSorted[minIndex] = temp;
-    pivot++;
+    wall++;
   }
   return toBeSorted;
 }
