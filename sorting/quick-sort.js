@@ -26,14 +26,19 @@ function swap(array, i, j) {
 }
 
 function partition(array, low, high) {
+  // array[low] is the pivot
   var lIndex = low;
   var rIndex = high + 1;
   while (true) {
+    // From the left, search an element equal or bigger than the pivot
     while (array[++lIndex] <= array[low]) if (lIndex === high) break;
+    // From the right, search an element smaller than the pivot
     while (array[--rIndex] > array[low]) if (rIndex === low) break;
+    // This signal the end of the search
     if (lIndex >= rIndex) break;
     swap(array, lIndex, rIndex);
   }
+  // Swap the pivot to its final position
   swap(array, rIndex, low);
   return rIndex;
 }
@@ -45,6 +50,8 @@ function sort(array, low, high) {
   sort(array, partitionPivot + 1, high);
 }
 
+// Wrapper to avoid giving the user the responsability
+// of computing the array boundaries
 function quickSort(array) {
   sort(array, 0, array.length - 1);
   return array;
