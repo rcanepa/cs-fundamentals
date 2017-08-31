@@ -1,4 +1,17 @@
 import random
+import time
+
+from operator import ge as greater, lt as lesser
+
+
+def qsort(L):
+    if len(L) <= 1:
+        return L
+    pivot = L[0]
+
+    def sublist(op): return [*filter(lambda num: op(num, pivot), L[1:])]
+
+    return qsort(sublist(lesser)) + [pivot] + qsort(sublist(greater))
 
 
 def partition(array, low, high):
@@ -23,8 +36,7 @@ def sort(array, low, high):
     return array
 
 
-def quicksort(source_array):
-    array = source_array.copy()  #  don't mutate the original array
+def quicksort(array):
     sort(array, 0, len(array) - 1)
     return array
 
@@ -38,8 +50,13 @@ def create_random_array(size):
 
 
 if __name__ == '__main__':
-    random_list = create_random_array(15)
-    sorted_list = quicksort(random_list)
-    print('Unsorted array   =>    {}'.format(random_list))
-    print('Sorted array     =>    {}'.format(sorted_list))
-    print('Is the result array sorted? => {}'.format(is_sorted(sorted_list)))
+    size = 10000
+    random_list = create_random_array(size)
+    t0 = time.time()
+    # sorted_list = quicksort(random_list)
+    sorted_list = qsort(random_list)
+    t1 = time.time()
+    if (size < 20):
+        print('Unsorted array   =>    {}'.format(random_list))
+        print('Sorted array     =>    {}'.format(sorted_list))
+    print('Took {:.3f}ms to sort {} elements.'.format((t1 - t0) * 1000, size))
