@@ -20,20 +20,30 @@ testSizes.forEach(n => {
   utils.isSorted(sorted);
 });
 
+/**
+ * On every iteration, Selection Sort moves the smallest 
+ * element to its final position. The `wall` var marks
+ * the limit between the sorted and unsorted parts of the
+ * array.
+ * [0, ..., wall, ..., n - 1]
+ *     ^
+ * sorted part
+ * of the array
+ * @param {[*]} srcArray 
+ */
 function selectionSort(srcArray) {
   var toBeSorted, wall, minValue, minIndex, n;
   n = srcArray.length;
   toBeSorted = srcArray.slice(0, n);
   wall = 0;
-  start = +new Date();
   while (wall < n) {
     // O(n)
     var temp;
     minValue = toBeSorted[wall];
     minIndex = wall;
     for (var i = wall; i < n; i++) {
-      // O(n)
-      if (toBeSorted[i] < minValue) {
+      // O(n) - Loop until finding the smallest element from wall to n
+      if (toBeSorted[i] <= minValue) {
         minValue = toBeSorted[i];
         minIndex = i;
       }

@@ -20,13 +20,19 @@ testSizes.forEach(n => {
   utils.isSorted(sorted);
 });
 
+/**
+ * [0, ... <= x - 1, x, >= x + 1 ...]
+ *    ^                      ^
+ * partially            partially
+ * sorted part          unsorted part
+ */
 function insertionSort(srcArray) {
   var temp, array;
   array = srcArray.slice(0, srcArray.length);
   for (var i = 1; i < array.length; i++) {
-    // O(n)
+    // O(n) - Loop over the unsorted part of the array
     for (var j = i; j >= 0; j--) {
-      // O(n)
+      // O(n) - Loop over the partially sorted part of the array
       if (array[j] < array[j - 1]) {
         temp = array[j];
         array[j] = array[j - 1];

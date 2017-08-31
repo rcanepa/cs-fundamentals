@@ -2,7 +2,8 @@
 
 /**
  * Node public API.
- * It should be used through Node function creator.
+ * It should be used through Node function creator. This is the place
+ * to extend the Node API.
  */
 var NodePublicAPI = {
   toString: function toString() {
@@ -23,7 +24,8 @@ function Node(value) {
 }
 
 /**
- * Linked List public API.
+ * Linked List public API. This is the place
+ * to extend the Linked List API.
  */
 var LinkedListPublicAPI = {
   length: length,
