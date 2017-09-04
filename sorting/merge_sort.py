@@ -1,6 +1,8 @@
 import random
 import time
 
+from utils.arrays import create_random_array, is_sorted
+
 
 def merge(leftArray, rightArray):
     sorted_array = []
@@ -36,20 +38,14 @@ def mergesort(array):
     return merge(left, right)
 
 
-def is_sorted(array):
-    return array == sorted(array)
-
-
-def create_random_array(size):
-    return [random.randrange(0, size * 10, 1) for x in range(size)]
-
-
 if __name__ == '__main__':
     size = 10000
     random_list = create_random_array(size)
     t0 = time.time()
     sorted_list = mergesort(random_list)
     t1 = time.time()
+    if (not is_sorted(sorted_list)):
+        raise Exception('The array was not correctly sorted.')
     if (size < 20):
         print('Unsorted array   =>    {}'.format(random_list))
         print('Sorted array     =>    {}'.format(sorted_list))

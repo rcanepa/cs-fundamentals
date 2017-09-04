@@ -57,4 +57,10 @@ typings/
 # dotenv environment variables file
 .env
 
+# VS Code
 .vscode
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
