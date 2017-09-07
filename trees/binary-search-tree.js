@@ -40,10 +40,27 @@ const BSTreeAPI = {
   contains: contains,
   deleteMax: deleteMax,
   deleteMin: deleteMin,
+  deleteNode: deleteNode,
   preOrderTraversal: preOrderTraversal,
   inOrderTraversal: inOrderTraversal,
   postOrderTraversal: postOrderTraversal
 };
+
+function validateBSTree(node) {
+  if (
+    (node.left && node.left.value > node.value) ||
+    (node.right && node.right.value < node.value)
+  ) {
+    throw new Error(
+      `Invalid tree. root=${node.value}, left=${node.left
+        ? node.left.value
+        : 0}, right=${node.right ? node.right.value : 0}`
+    );
+  }
+  if (node.left) validateBSTree(node.left);
+  if (node.right) validateBSTree(node.right);
+  return true;
+}
 
 function _insert(node, value) {
   if (node.value === value) {
@@ -90,14 +107,14 @@ function contains(value) {
 function _deleteMax(node) {
   if (node.right) {
     node.right = _deleteMax(node.right);
-    node.size = node.right && node.right.size + node.left && node.left.size;
+    node.size = computeNodeSize(node);
     return node;
   }
   return node.left ? node.left : null;
 }
 
 function deleteMax() {
-  if (this.size > 0) {
+  if (this.root) {
     this.root = _deleteMax(this.root);
     this.size--;
   }
@@ -106,19 +123,62 @@ function deleteMax() {
 function _deleteMin(node) {
   if (node.left) {
     node.left = _deleteMin(node.left);
-    node.size =
-      1 +
-      ((node.right && node.right.size) || 0) +
-      ((node.left && node.left.size) || 0);
+    node.size = computeNodeSize(node);
     return node;
   }
   return node.right ? node.right : null;
 }
 
 function deleteMin() {
-  if (this.size > 0) {
+  if (this.root) {
     this.root = _deleteMin(this.root);
     this.size--;
+  }
+}
+
+function _deleteNode(node, value) {
+  if (node.value === value) {
+    // case 1: the node is a leaf
+    if (!node.left && !node.right) {
+      return null;
+      // case 2: the node has one child
+    } else if (!node.left && node.right) {
+      return node.right;
+      // case 3: the node has one child
+    } else if (node.left && !node.right) {
+      return node.left;
+      // case 4: the node has two children
+      // replace node with the smallest child of its right branch
+    } else {
+      var smallestNode = node.right;
+      var smallestNodeParent = null;
+      // find the smallest one of its right branch
+      while (smallestNode.left) {
+        smallestNodeParent = smallestNode;
+        smallestNode = smallestNode.left;
+      }
+      // remove it from its parent
+      smallestNodeParent.left = null;
+      smallestNodeParent.size = computeNodeSize(smallestNodeParent);
+      // make the smallest take the place of the one being deleted
+      smallestNode.left = node.left;
+      smallestNode.right = node.right;
+      smallestNode.size = computeNodeSize(smallestNode);
+      // return it
+      return smallestNode;
+    }
+  } else if (node.value > value && node.left) {
+    node.left = _deleteNode(node.left, value);
+  } else if (node.value < value && node.right) {
+    node.right = _deleteNode(node.right, value);
+  }
+  node.size = computeNodeSize(node);
+  return node;
+}
+
+function deleteNode(value) {
+  if (this.root) {
+    this.root = _deleteNode(this.root, value);
   }
 }
 
@@ -164,4 +224,4 @@ function BSTree(value) {
   return newBTree;
 }
 
-module.exports = { BSTree };
+module.exports = { BSTree, validateBSTree };
