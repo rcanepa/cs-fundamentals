@@ -133,6 +133,20 @@ describe("Deletion", () => {
       expect(tree.root.left.value).toBe(16);
       expect(tree.root.left.size).toBe(3);
     });
+
+    test("Deleting the root should follow the same rules", () => {
+      /**
+       * Before deleting the root
+       *            20
+       *     16            30
+       * 10      17     25
+       */
+      tree.deleteNode(20);
+      expect(tree.root.value).toBe(25);
+      expect(tree.root.right.value).toBe(30);
+      expect(tree.root.left.value).toBe(16);
+      expect(tree.root.size).toBe(5);
+    });
   });
 });
 
