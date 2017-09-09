@@ -2,6 +2,7 @@ var GraphAPI = {
   vertices: 0,
   getAdjacencyList: getAdjacencyList,
   addEdge: addEdge,
+  removeEdge: removeEdge,
   areConnected: areConnected,
   getNeighbors: getNeighbors
 };
@@ -19,6 +20,16 @@ function addEdge(v1, v2) {
     throw new Error("Vertices are already connected.");
   this.adjacencyList[v1].push(v2);
   if (!this.directed) this.adjacencyList[v2].push(v1);
+}
+
+function removeEdge(v1, v2) {
+  if (v1 >= this.vertices || v2 >= this.vertices)
+    throw new Error(
+      "You can't delete the edge, because at least one of vertices doesn't exist."
+    );
+  this.adjacencyList[v1].splice(this.adjacencyList[v1].indexOf(v2), 1);
+  if (!this.directed)
+    this.adjacencyList[v2].splice(this.adjacencyList[v2].indexOf(v1), 1);
 }
 
 function areConnected(v1, v2) {

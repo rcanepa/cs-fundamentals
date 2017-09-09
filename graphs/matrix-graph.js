@@ -2,6 +2,7 @@ var GraphAPI = {
   vertices: 0,
   getMatrix: getMatrix,
   addEdge: addEdge,
+  removeEdge: removeEdge,
   areConnected: areConnected,
   getNeighbors: getNeighbors
 };
@@ -17,6 +18,15 @@ function addEdge(v1, v2) {
     );
   this.connectionMatrix[v1][v2] = 1;
   if (!this.directed) this.connectionMatrix[v2][v1] = 1;
+}
+
+function removeEdge(v1, v2) {
+  if (v1 >= this.vertices || v2 >= this.vertices)
+    throw new Error(
+      "You can't remove an edge between vertices that don't exist."
+    );
+  this.connectionMatrix[v1][v2] = 0;
+  if (!this.directed) this.connectionMatrix[v2][v1] = 0;
 }
 
 function areConnected(v1, v2) {
