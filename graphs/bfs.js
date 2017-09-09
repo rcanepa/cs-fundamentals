@@ -1,3 +1,8 @@
+/**
+ * TODO: 
+ * Use a real Queue. shift() is O(n) and
+ * dequeue is O(c). 
+ */
 var { Graph } = require("./matrix-graph");
 
 function visitVertice(graph, queue, visited, workFn) {

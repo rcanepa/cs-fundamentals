@@ -1,13 +1,13 @@
 var GraphAPI = {
   vertices: 0,
-  getMatrix: getMatrix,
+  getAdjacencyList: getAdjacencyList,
   addEdge: addEdge,
   areConnected: areConnected,
   getNeighbors: getNeighbors
 };
 
-function getMatrix() {
-  return this.connectionMatrix;
+function getAdjacencyList() {
+  return this.adjacencyList;
 }
 
 function addEdge(v1, v2) {
@@ -15,32 +15,24 @@ function addEdge(v1, v2) {
     throw new Error(
       "You can't connect those vertices, because at least one of them doesn't exist."
     );
-  this.connectionMatrix[v1][v2] = 1;
-  if (!this.directed) this.connectionMatrix[v2][v1] = 1;
+  if (this.areConnected(v1, v2))
+    throw new Error("Vertices are already connected.");
+  this.adjacencyList[v1].push(v2);
+  if (!this.directed) this.adjacencyList[v2].push(v1);
 }
 
 function areConnected(v1, v2) {
-  return this.connectionMatrix[v1][v2] === 1;
+  return this.adjacencyList[v1].indexOf(v2) !== -1;
 }
 
 function getNeighbors(v) {
-  var neighbors = [];
-  for (var i = 0; i < this.vertices; i++) {
-    if (this.areConnected(v, i)) {
-      neighbors.push(i);
-    }
-  }
-  return neighbors;
+  return this.adjacencyList[v];
 }
 
 function initGraph(graph) {
-  graph.connectionMatrix = [];
-  var disconnetedVertices = [];
+  graph.adjacencyList = {};
   for (var i = 0; i < graph.vertices; i++) {
-    disconnetedVertices.push(0);
-  }
-  for (var i = 0; i < graph.vertices; i++) {
-    graph.connectionMatrix.push(disconnetedVertices.slice(0, graph.vertices));
+    graph.adjacencyList[i] = [];
   }
   return graph;
 }
@@ -53,8 +45,7 @@ function Graph(vertices, directed) {
   var graph = Object.create(GraphAPI);
   graph.vertices = vertices || 0;
   graph.directed = directed || false;
-  initGraph(graph);
-  return graph;
+  return initGraph(graph);
 }
 
 module.exports = {
