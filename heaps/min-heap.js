@@ -41,6 +41,7 @@ function insert(value) {
       parentPosition = getParentPosition(parentPosition);
     } else break;
   }
+  console.log(JSON.stringify(this));
   return this;
 }
 
@@ -54,7 +55,8 @@ h
   .insert(40)
   .insert(30)
   .insert(1)
-  .insert(-1);
+  .insert(-1)
+  .remove();
 console.log(JSON.stringify(h));
 
 /**
@@ -63,7 +65,52 @@ console.log(JSON.stringify(h));
  * is pushed down to the bottom until the end of the tree or when
  * it finds a greater value than itself (and stops in that position).
  */
-function remove(value) {}
+function remove(value) {
+  var heap = this._storage;
+  if (heap.length === 0) return;
+
+  // Swap the min with the last element
+  swap(heap, 0, heap.length - 1);
+
+  // pop the min element
+  var min = heap.pop();
+
+  // "bubble down" the value at the root until
+  // its final position
+  var keepBubbling = true;
+  var currentPosition = 0;
+  var leftChildPosition = getLeftChildPosition(currentPosition);
+  var rightChildPosition = getRightChildPosition(currentPosition);
+  while (keepBubbling) {
+    console.log(JSON.stringify(this));
+    // The left child is the smallest of the two
+    if (
+      heap[leftChildPosition] &&
+      (heap[leftChildPosition] < heap[rightChildPosition] &&
+        heap[leftChildPosition] < heap[currentPosition])
+    ) {
+      swap(heap, leftChildPosition, currentPosition);
+      currentPosition = leftChildPosition;
+      leftChildPosition = getLeftChildPosition(currentPosition);
+      rightChildPosition = getRightChildPosition(currentPosition);
+    } else if (
+      heap[rightChildPosition] &&
+      (heap[rightChildPosition] < heap[leftChildPosition] &&
+        heap[rightChildPosition] < heap[currentPosition])
+    ) {
+      // The right child is the smallest of the two
+      swap(heap, rightChildPosition, currentPosition);
+      currentPosition = rightChildPosition;
+      leftChildPosition = getLeftChildPosition(currentPosition);
+      rightChildPosition = getRightChildPosition(currentPosition);
+    } else {
+      // The current element is smaller than its children
+      keepBubbling = false;
+    }
+  }
+
+  return min;
+}
 
 /**
  * Returns the number of elements in the heap.
