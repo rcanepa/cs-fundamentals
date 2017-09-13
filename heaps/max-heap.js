@@ -40,19 +40,19 @@ function swap(array, position1, position2) {
 /**
  * Public API.
  */
-var minHeapAPI = {
-  min,
+var maxHeapAPI = {
+  max,
   insert,
-  removeMin,
+  removeMax,
   isEmpty,
   size,
   merge
 };
 
 /**
- * Returns the current min element of the heap.
+ * Returns the current max element of the heap.
  */
-function min() {
+function max() {
   return this._storage[0];
 }
 
@@ -69,7 +69,7 @@ function insert(value) {
   currentPosition = heap.length - 1;
   parentPosition = getParentPosition(currentPosition);
   while (parentPosition !== null) {
-    if (heap[parentPosition] > value) {
+    if (heap[parentPosition] < value) {
       swap(heap, currentPosition, parentPosition);
       currentPosition = parentPosition;
       parentPosition = getParentPosition(parentPosition);
@@ -84,15 +84,15 @@ function insert(value) {
  * is pushed down to the bottom until the end of the tree or when
  * it finds a greater value than itself (and stops in that position).
  */
-function removeMin(value) {
+function removeMax(value) {
   var heap = this._storage;
   if (heap.length === 0) return;
 
-  // Swap the min with the last element
+  // Swap the max with the last element
   swap(heap, 0, heap.length - 1);
 
-  // pop the min element
-  var min = heap.pop();
+  // pop the max element
+  var max = heap.pop();
 
   // "bubble down" the value at the root until
   // its final position
@@ -102,16 +102,16 @@ function removeMin(value) {
   while (true) {
     /**
      * The "bubble down" process must check the following cases:
-     * Case 1: (left && !right) && (left < current) -> swap(current, left)
-     * Case 2: (!left && right) && (right < current) -> swap(current, right)
-     * Case 3: (left && right) && (right < left && right < current) -> swap(current, right)
-     * Case 4: (left && right) && (left < right && left < current) -> swap(current, left)
+     * Case 1: (left && !right) && (left > current) -> swap(current, left)
+     * Case 2: (!left && right) && (right > current) -> swap(current, right)
+     * Case 3: (left && right) && (right > left && right > current) -> swap(current, right)
+     * Case 4: (left && right) && (left > right && left > current) -> swap(current, left)
      * Case 5: (!left && !right) -> break
      */
     if (
       heap[leftChildPosition] &&
       !heap[rightChildPosition] &&
-      heap[leftChildPosition] < heap[currentPosition]
+      heap[leftChildPosition] > heap[currentPosition]
     ) {
       swap(heap, leftChildPosition, currentPosition);
       currentPosition = leftChildPosition;
@@ -120,7 +120,7 @@ function removeMin(value) {
     } else if (
       !heap[leftChildPosition] &&
       heap[rightChildPosition] &&
-      heap[rightChildPosition] < heap[currentPosition]
+      heap[rightChildPosition] > heap[currentPosition]
     ) {
       swap(heap, rightChildPosition, currentPosition);
       currentPosition = rightChildPosition;
@@ -129,8 +129,8 @@ function removeMin(value) {
     } else if (
       heap[leftChildPosition] &&
       heap[rightChildPosition] &&
-      (heap[rightChildPosition] < heap[leftChildPosition] &&
-        heap[rightChildPosition] < heap[currentPosition])
+      (heap[rightChildPosition] > heap[leftChildPosition] &&
+        heap[rightChildPosition] > heap[currentPosition])
     ) {
       swap(heap, rightChildPosition, currentPosition);
       currentPosition = rightChildPosition;
@@ -139,8 +139,8 @@ function removeMin(value) {
     } else if (
       heap[leftChildPosition] &&
       heap[rightChildPosition] &&
-      (heap[leftChildPosition] < heap[rightChildPosition] &&
-        heap[leftChildPosition] < heap[currentPosition])
+      (heap[leftChildPosition] > heap[rightChildPosition] &&
+        heap[leftChildPosition] > heap[currentPosition])
     ) {
       swap(heap, leftChildPosition, currentPosition);
       currentPosition = leftChildPosition;
@@ -151,7 +151,7 @@ function removeMin(value) {
     }
   }
 
-  return min;
+  return max;
 }
 
 /**
@@ -170,23 +170,23 @@ function isEmpty() {
 
 /**
  * Creates a new Heap by merging two of them.
- * @param {MinHeap} theOtherHeap 
+ * @param {MaxHeap} theOtherHeap 
  */
 function merge(theOtherHeap) {
   var allElements = this._storage.concat(theOtherHeap._storage);
-  return MinHeap(allElements);
+  return MaxHeap(allElements);
 }
 
-function MinHeap(initialData) {
+function MaxHeap(initialData) {
   initialData = initialData || [];
   if (Object.prototype.toString.call(initialData) !== "[object Array]")
     throw new Error("You can only initialize the Heap with an array.");
-  var newMinHeap = Object.create(minHeapAPI);
-  newMinHeap._storage = [];
+  var newMaxHeap = Object.create(maxHeapAPI);
+  newMaxHeap._storage = [];
   initialData.forEach(function(element) {
-    newMinHeap.insert(element);
+    newMaxHeap.insert(element);
   }, this);
-  return newMinHeap;
+  return newMaxHeap;
 }
 
-module.exports = { MinHeap };
+module.exports = { MaxHeap };
