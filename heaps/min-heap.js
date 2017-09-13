@@ -45,7 +45,8 @@ var minHeapAPI = {
   insert,
   removeMin,
   isEmpty,
-  size
+  size,
+  merge
 };
 
 /**
@@ -143,9 +144,24 @@ function isEmpty() {
   return this._storage.length === 0;
 }
 
-function MinHeap() {
+/**
+ * Creates a new Heap by merging two of them.
+ * @param {MinHeap} theOtherHeap 
+ */
+function merge(theOtherHeap) {
+  var allElements = this._storage.concat(theOtherHeap._storage);
+  return MinHeap(allElements);
+}
+
+function MinHeap(initialData) {
+  initialData = initialData || [];
+  if (Object.prototype.toString.call(initialData) !== "[object Array]")
+    throw new Error("You can only initialize the Heap with an array.");
   var newMinHeap = Object.create(minHeapAPI);
   newMinHeap._storage = [];
+  initialData.forEach(function(element) {
+    newMinHeap.insert(element);
+  }, this);
   return newMinHeap;
 }
 
