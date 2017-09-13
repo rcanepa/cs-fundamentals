@@ -1,3 +1,4 @@
+"use strict";
 /**
  * In this implementation, the data is kept in an array.
  * The root start at position 0. So for node k (in the array)
@@ -9,17 +10,48 @@
  * and so on...
  */
 
+/**
+ * Private functions (not part of the public API).
+ */
+function getLeftChildPosition(parentPosition) {
+  return parentPosition * 2 + 1;
+}
+
+function getRightChildPosition(parentPosition) {
+  return parentPosition * 2 + 2;
+}
+
+function getParentPosition(childPosition) {
+  if (childPosition === 0) return null;
+  return childPosition % 2 === 1
+    ? (childPosition - 1) / 2
+    : (childPosition - 2) / 2;
+}
+
+function swap(array, position1, position2) {
+  if (array.length <= position1 || array.length <= position2)
+    throw new Error("Cannot swap elements outside the array.");
+  var temp = array[position1];
+  array[position1] = array[position2];
+  array[position2] = temp;
+  return array;
+}
+
+/**
+ * Public API.
+ */
 var minHeapAPI = {
-  peek,
+  min,
   insert,
-  remove,
+  removeMin,
+  isEmpty,
   size
 };
 
 /**
  * Returns the current min element of the heap.
  */
-function peek() {
+function min() {
   return this._storage[0];
 }
 
@@ -30,34 +62,20 @@ function peek() {
  * @param {*} value 
  */
 function insert(value) {
+  var heap = this._storage;
   var parentPosition, currentPosition;
-  this._storage.push(value);
-  currentPosition = this._storage.length - 1;
+  heap.push(value);
+  currentPosition = heap.length - 1;
   parentPosition = getParentPosition(currentPosition);
   while (parentPosition !== null) {
-    if (this._storage[parentPosition] > value) {
-      swap(this._storage, currentPosition, parentPosition);
+    if (heap[parentPosition] > value) {
+      swap(heap, currentPosition, parentPosition);
       currentPosition = parentPosition;
       parentPosition = getParentPosition(parentPosition);
     } else break;
   }
-  console.log(JSON.stringify(this));
   return this;
 }
-
-var h = MinHeap();
-console.log(JSON.stringify(h));
-h
-  .insert(10)
-  .insert(100)
-  .insert(50)
-  .insert(4)
-  .insert(40)
-  .insert(30)
-  .insert(1)
-  .insert(-1)
-  .remove();
-console.log(JSON.stringify(h));
 
 /**
  * Removes the root node of the tree (the smallest value) and then
@@ -65,7 +83,7 @@ console.log(JSON.stringify(h));
  * is pushed down to the bottom until the end of the tree or when
  * it finds a greater value than itself (and stops in that position).
  */
-function remove(value) {
+function removeMin(value) {
   var heap = this._storage;
   if (heap.length === 0) return;
 
@@ -82,7 +100,6 @@ function remove(value) {
   var leftChildPosition = getLeftChildPosition(currentPosition);
   var rightChildPosition = getRightChildPosition(currentPosition);
   while (keepBubbling) {
-    console.log(JSON.stringify(this));
     // The left child is the smallest of the two
     if (
       heap[leftChildPosition] &&
@@ -119,28 +136,11 @@ function size() {
   return this._storage.length;
 }
 
-function getLeftChildPosition(parentPosition) {
-  return parentPosition * 2 + 1;
-}
-
-function getRightChildPosition(parentPosition) {
-  return parentPosition * 2 + 2;
-}
-
-function getParentPosition(childPosition) {
-  if (childPosition === 0) return null;
-  return childPosition % 2 === 1
-    ? (childPosition - 1) / 2
-    : (childPosition - 2) / 2;
-}
-
-function swap(array, position1, position2) {
-  if (array.length <= position1 || array.length <= position2)
-    throw new Error("Cannot swap elements outside the array.");
-  var temp = array[position1];
-  array[position1] = array[position2];
-  array[position2] = temp;
-  return array;
+/**
+ * Returns true if the heap is empty.
+ */
+function isEmpty() {
+  return this._storage.length === 0;
 }
 
 function MinHeap() {
