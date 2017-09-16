@@ -13,6 +13,28 @@
 /**
  * Private functions (not part of the public API).
  */
+function validateHeap(heap, currentPosition = 0) {
+  var leftChildPosition = getLeftChildPosition(currentPosition);
+  var rightChildPosition = getRightChildPosition(currentPosition);
+  if (!heap._storage[leftChildPosition] || !heap._storage[rightChildPosition]) {
+    return true;
+  }
+  if (
+    heap._storage[leftChildPosition] < heap._storage[currentPosition] ||
+    heap._storage[rightChildPosition] < heap._storage[currentPosition]
+  ) {
+    throw new Error(
+      `Invalid heap. Parent = ${heap._storage[
+        currentPosition
+      ]}, leftChild = ${heap._storage[leftChildPosition]}, rightChild = ${heap
+        ._storage[rightChildPosition]}.`
+    );
+  } else {
+    return validateHeap(heap, leftChildPosition);
+    return validateHeap(heap, rightChildPosition);
+  }
+}
+
 function getLeftChildPosition(parentPosition) {
   return parentPosition * 2 + 1;
 }
@@ -30,11 +52,17 @@ function getParentPosition(childPosition) {
 
 function swap(array, position1, position2) {
   if (array.length <= position1 || array.length <= position2)
-    throw new Error("Cannot swap elements outside the array.");
+    throw new Error(
+      `Cannot swap elements outside the array. Array length = ${array.length}, position1 = ${position1}, position2 = ${position2}`
+    );
   var temp = array[position1];
   array[position1] = array[position2];
   array[position2] = temp;
   return array;
+}
+
+function isLess(array, position1, position2) {
+  return array[position1] < array[position2];
 }
 
 /**
@@ -69,10 +97,10 @@ function insert(value) {
   currentPosition = heap.length - 1;
   parentPosition = getParentPosition(currentPosition);
   while (parentPosition !== null) {
-    if (heap[parentPosition] > value) {
+    if (isLess(heap, currentPosition, parentPosition)) {
       swap(heap, currentPosition, parentPosition);
       currentPosition = parentPosition;
-      parentPosition = getParentPosition(parentPosition);
+      parentPosition = getParentPosition(currentPosition);
     } else break;
   }
   return this;
@@ -99,56 +127,39 @@ function removeMin(value) {
   var currentPosition = 0;
   var leftChildPosition = getLeftChildPosition(currentPosition);
   var rightChildPosition = getRightChildPosition(currentPosition);
-  while (true) {
-    /**
-     * The "bubble down" process must check the following cases:
-     * Case 1: (left && !right) && (left < current) -> swap(current, left)
-     * Case 2: (!left && right) && (right < current) -> swap(current, right)
-     * Case 3: (left && right) && (right < left && right < current) -> swap(current, right)
-     * Case 4: (left && right) && (left < right && left < current) -> swap(current, left)
-     * Case 5: (!left && !right) -> break
-     */
+  while (leftChildPosition < this.size() && rightChildPosition < this.size()) {
     if (
-      heap[leftChildPosition] &&
-      !heap[rightChildPosition] &&
-      heap[leftChildPosition] < heap[currentPosition]
+      isLess(heap, currentPosition, leftChildPosition) &&
+      isLess(heap, currentPosition, rightChildPosition)
     ) {
-      swap(heap, leftChildPosition, currentPosition);
-      currentPosition = leftChildPosition;
-      leftChildPosition = getLeftChildPosition(currentPosition);
-      rightChildPosition = getRightChildPosition(currentPosition);
-    } else if (
-      !heap[leftChildPosition] &&
-      heap[rightChildPosition] &&
-      heap[rightChildPosition] < heap[currentPosition]
-    ) {
-      swap(heap, rightChildPosition, currentPosition);
-      currentPosition = rightChildPosition;
-      leftChildPosition = getLeftChildPosition(currentPosition);
-      rightChildPosition = getRightChildPosition(currentPosition);
-    } else if (
-      heap[leftChildPosition] &&
-      heap[rightChildPosition] &&
-      (heap[rightChildPosition] < heap[leftChildPosition] &&
-        heap[rightChildPosition] < heap[currentPosition])
-    ) {
-      swap(heap, rightChildPosition, currentPosition);
-      currentPosition = rightChildPosition;
-      leftChildPosition = getLeftChildPosition(currentPosition);
-      rightChildPosition = getRightChildPosition(currentPosition);
-    } else if (
-      heap[leftChildPosition] &&
-      heap[rightChildPosition] &&
-      (heap[leftChildPosition] < heap[rightChildPosition] &&
-        heap[leftChildPosition] < heap[currentPosition])
-    ) {
-      swap(heap, leftChildPosition, currentPosition);
-      currentPosition = leftChildPosition;
-      leftChildPosition = getLeftChildPosition(currentPosition);
-      rightChildPosition = getRightChildPosition(currentPosition);
-    } else {
       break;
+    } else {
+      if (isLess(heap, rightChildPosition, leftChildPosition)) {
+        swap(heap, rightChildPosition, currentPosition);
+        currentPosition = rightChildPosition;
+        leftChildPosition = getLeftChildPosition(currentPosition);
+        rightChildPosition = getRightChildPosition(currentPosition);
+      } else {
+        swap(heap, leftChildPosition, currentPosition);
+        currentPosition = leftChildPosition;
+        leftChildPosition = getLeftChildPosition(currentPosition);
+        rightChildPosition = getRightChildPosition(currentPosition);
+      }
     }
+  }
+
+  if (
+    heap[leftChildPosition] &&
+    isLess(heap, leftChildPosition, currentPosition)
+  ) {
+    swap(heap, leftChildPosition, currentPosition);
+  }
+
+  if (
+    heap[rightChildPosition] &&
+    isLess(heap, rightChildPosition, currentPosition)
+  ) {
+    swap(heap, rightChildPosition, currentPosition);
   }
 
   return min;

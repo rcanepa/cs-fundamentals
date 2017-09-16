@@ -25,10 +25,13 @@ function isSorted(collection, compareFunction) {
   return true;
 }
 
-function createRandomArray(arraySize) {
+function createRandomArray(arraySize, seed = 1) {
+  var x;
   var array = [];
   for (var i = 0; i < arraySize; i++) {
-    array[i] = Math.floor(Math.random() * 100000);
+    x = Math.sin(seed++) * 10000;
+    x = x - Math.floor(x);
+    array[i] = Math.floor(x * 100000);
   }
   return array;
 }
