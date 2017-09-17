@@ -1,26 +1,24 @@
-import random
 import time
-
 from utils.arrays import create_random_array, is_sorted
 
 
-def merge(leftArray, rightArray):
+def merge(left_array, right_array):
     sorted_array = []
     lp, rp = 0, 0
-    while (lp < len(leftArray) and rp < len(rightArray)):
-        if (leftArray[lp] <= rightArray[rp]):
-            sorted_array.append(leftArray[lp])
+    while lp < len(left_array) and rp < len(right_array):
+        if left_array[lp] <= right_array[rp]:
+            sorted_array.append(left_array[lp])
             lp += 1
         else:
-            sorted_array.append(rightArray[rp])
+            sorted_array.append(right_array[rp])
             rp += 1
 
-    while (lp < len(leftArray)):
-        sorted_array.append(leftArray[lp])
+    while lp < len(left_array):
+        sorted_array.append(left_array[lp])
         lp += 1
 
-    while (rp < len(rightArray)):
-        sorted_array.append(rightArray[rp])
+    while rp < len(right_array):
+        sorted_array.append(right_array[rp])
         rp += 1
 
     return sorted_array
@@ -28,7 +26,7 @@ def merge(leftArray, rightArray):
 
 def mergesort(array):
     array_length = len(array)
-    if (array_length == 0 or array_length == 1):
+    if array_length == 0 or array_length == 1:
         return array
 
     half = array_length // 2
@@ -44,9 +42,9 @@ if __name__ == '__main__':
     t0 = time.time()
     sorted_list = mergesort(random_list)
     t1 = time.time()
-    if (not is_sorted(sorted_list)):
+    if not is_sorted(sorted_list):
         raise Exception('The array was not correctly sorted.')
-    if (size < 20):
+    if size < 20:
         print('Unsorted array   =>    {}'.format(random_list))
         print('Sorted array     =>    {}'.format(sorted_list))
     print('Took {:.3f}ms to sort {} elements.'.format((t1 - t0) * 1000, size))

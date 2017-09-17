@@ -6,4 +6,4 @@ def is_sorted(array):
 
 
 def create_random_array(size):
-    return [random.randrange(0, size * 10, 1) for x in range(size)]
+    return [random.randrange(0, size * 10, 1) for _ in range(size)]

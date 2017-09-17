@@ -1,6 +1,4 @@
-import random
 import time
-
 from utils.arrays import create_random_array
 
 
@@ -8,7 +6,7 @@ def partition(array, low, high):
     moving_target = low + 1
     index = moving_target
     while index <= high:
-        if (array[index] < array[low]):
+        if array[index] < array[low]:
             array[index], array[moving_target] = array[moving_target], array[index]
             moving_target += 1
         index += 1
@@ -18,7 +16,7 @@ def partition(array, low, high):
 
 
 def sort(array, low, high):
-    if (low >= high):
+    if low >= high:
         return array
     half = partition(array, low, high)
     sort(array, low, half - 1)
@@ -35,19 +33,15 @@ def is_sorted(array):
     return array == sorted(array)
 
 
-def create_random_array(size):
-    return [random.randrange(0, size * 10, 1) for x in range(size)]
-
-
 if __name__ == '__main__':
     size = 10000
     random_list = create_random_array(size)
     t0 = time.time()
     sorted_list = quicksort(random_list)
     t1 = time.time()
-    if (not is_sorted(sorted_list)):
+    if not is_sorted(sorted_list):
         raise Exception('The array was not correctly sorted.')
-    if (size < 20):
+    if size < 20:
         print('Unsorted array   =>    {}'.format(random_list))
         print('Sorted array     =>    {}'.format(sorted_list))
     print('Took {:.3f}ms to sort {} elements.'.format((t1 - t0) * 1000, size))
