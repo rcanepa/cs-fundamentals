@@ -155,6 +155,22 @@ class BSTree(object):
         """ Returns the number of elements inside the BST. """
         return self._size
 
+    def _validate_bstree(self):
+        def _validate_node(node):
+            if node.left:
+                if node.left.value < node.value:
+                    _validate_node(node.left)
+                else:
+                    raise Exception("Invalid tree. Parent={}, LeftChild={}".format(node.value, node.left.value))
+
+            if node.right:
+                if node.right.value > node.value:
+                    _validate_node(node.right)
+                else:
+                    raise Exception("Invalid tree. Parent={}, RightChild={}".format(node.value, node.right.value))
+            return True
+        return _validate_node(self._root)
+
 
 if __name__ == "__main__":
     tree = BSTree([100, 75, 150, 25, 90, 200, 120, 110, 125])

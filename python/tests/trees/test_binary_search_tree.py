@@ -1,5 +1,6 @@
 import unittest
 from trees.binary_search_tree import BSTree
+from utils.arrays import create_random_array
 
 
 class BSTreeTest(unittest.TestCase):
@@ -71,6 +72,11 @@ class BSTreeTest(unittest.TestCase):
         for v in tree.in_order_traversal():
             values.append(v)
         self.assertEqual(values, sorted(initialization_list))
+
+    def test_preserve_binary_search_invariant(self):
+        initialization_list = create_random_array(500)
+        tree = BSTree(initialization_list)
+        self.assertTrue(tree._validate_bstree())
 
 
 if __name__ == '__main__':
