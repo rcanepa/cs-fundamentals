@@ -64,3 +64,4 @@ typings/
 __pycache__/
 *.py[cod]
 *$py.class
+python/.idea/
