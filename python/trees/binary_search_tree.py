@@ -1,5 +1,5 @@
 class BSTNode(object):
-
+    """ Node class used by the Binary Search Tree. """
     def __init__(self, value):
         self.value = value
         self.size = 1
@@ -7,6 +7,7 @@ class BSTNode(object):
         self.right = None
 
     def compute_size(self):
+        """ Computes the `self` size according to its children sizes. """
         self.size = 1
         if self.left:
             self.size = self.size + self.left.size
@@ -15,9 +16,18 @@ class BSTNode(object):
 
 
 class BSTree(object):
-    def __init__(self):
+    """ Binary Search Tree implementation which doesn't allow repeated Nodes. """
+    def __init__(self, initialization_list = []):
         self.__root = None
         self.__size = 0
+        for element in initialization_list:
+            self.insert(element)
+
+    def pre_order_traversal(self, fn=None):
+        """ Traverse tree in pre-order and apply `fn` to every Node value. """
+        if fn is None:
+            def fn(x): return print(x)
+        self.__pre_order_traversal(self.__root, fn)
 
     def __pre_order_traversal(self, node, fn):
         if node is None:
@@ -28,10 +38,11 @@ class BSTree(object):
         if node.right:
             self.__pre_order_traversal(node.right, fn)
 
-    def pre_order_traversal(self, fn=None):
+    def in_order_traversal(self, fn=None):
+        """ Traverse tree in in-order and apply `fn` to every Node value. """
         if fn is None:
             def fn(x): return print(x)
-        self.__pre_order_traversal(self.__root, fn)
+        self.__in_order_traversal(self.__root, fn)
 
     def __in_order_traversal(self, node, fn):
         if node is None:
@@ -42,10 +53,13 @@ class BSTree(object):
         if node.right:
             self.__in_order_traversal(node.right, fn)
 
-    def in_order_traversal(self, fn=None):
+    def post_order_traversal(self, fn=None):
+        """ Traverse tree in post-order and apply `fn` to every Node value. """
         if fn is None:
-            def fn(x): return print(x)
-        self.__in_order_traversal(self.__root, fn)
+            def fn(x): return
+
+            print(x)
+        self.__pre_order_traversal(self.__root, fn)
 
     def __post_order_traversal(self, node, fn):
         if node is None:
@@ -56,12 +70,13 @@ class BSTree(object):
             self.__post_order_traversal(node.right, fn)
         fn(node.value)
 
-    def post_order_traversal(self, fn=None):
-        if fn is None:
-            def fn(x): return
-
-            print(x)
-        self.__pre_order_traversal(self.__root, fn)
+    def insert(self, value):
+        """ Inserts a Node. Doesn't insert duplicated values."""
+        if self.__root is None:
+            self.__root = BSTNode(value)
+        else:
+            self.__root = self.__insert(self.__root, value)
+        self.__size = self.__root.size
 
     def __insert(self, node, value):
         if node is None:
@@ -73,12 +88,19 @@ class BSTree(object):
         node.compute_size()
         return node
 
-    def insert(self, value):
-        if self.__root is None:
-            self.__root = BSTNode(value)
-        else:
-            self.__root = self.__insert(self.__root, value)
-        self.__size = self.__root.size
+    def remove(self, value):
+        """
+        Removes a Node which contains the value `value`.
+        To remove a Node, three cases must be handled.
+        Case 1: leaf node
+                    -> delete it
+        Case 2: node has one child
+                    -> delete node and put its child in its place
+        Case 3: node has two children
+                    -> delete node and put its smallest child from its right branch in its place
+        """
+        if self.__root:
+            self.__root = self.__remove(self.__root, value)
 
     def __remove(self, node, value):
         if node.value == value:
@@ -122,20 +144,30 @@ class BSTree(object):
 
         node.compute_size()
         return node
-    
-    def remove(self, value):
-        """
-        Removes a Node which contains the value `value`.
-        To remove a Node, three cases must be handled.
-        Case 1: leaf node
-                    -> delete it
-        Case 2: node has one child
-                    -> delete node and put its child in its place
-        Case 3: node has two children 
-                    -> delete node and put its smallest child from its right branch in its place
-        """
+
+    def min(self):
+        """ Returns the smallest element of the tree. """
         if self.__root:
-            self.__root = self.__remove(self.__root, value)
+            node = self.__root
+            while node.left:
+                node = node.left
+            return node.value
+        else:
+            return None
+
+    def max(self):
+        """ Returns the biggest element of the tree. """
+        if self.__root:
+            node = self.__root
+            while node.right:
+                node = node.right
+            return node.value
+        else:
+            return None
+
+    def contains(self, value):
+        """ Returns True if `value` is found. """
+        return self.__contains(self.__root, value)
 
     def __contains(self, node, value):
         if node.value == value:
@@ -146,20 +178,16 @@ class BSTree(object):
             return self.__contains(node.right, value)
         return False
 
-    def contains(self, value):
-        return self.__contains(self.__root, value)
-
     def size(self):
+        """ Returns the number of elements inside the BST. """
         return self.__size
 
 
 if __name__ == "__main__":
-    tree = BSTree()
+    tree = BSTree([100, 50, 150, 25, 75, 120, 200, 110, 115])
 
-    values = [100, 50, 150, 25, 75, 120, 200, 110, 115]
-
-    for v in values:
-        tree.insert(v)
+    print("The smallest element is: {}".format(tree.min()))
+    print("The biggest element is: {}".format(tree.max()))
 
     print("####")
     tree.pre_order_traversal()
