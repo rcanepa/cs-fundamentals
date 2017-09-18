@@ -6,13 +6,13 @@ class _BSTNode(object):
         self.left = None
         self.right = None
 
-    def compute_size(self):
-        """ Computes the `self` size according to its children sizes. """
-        self.size = 1
-        if self.left:
-            self.size = self.size + self.left.size
-        if self.right:
-            self.size = self.size + self.right.size
+
+def _node_size(node):
+    """ Computes `node`'s size. """
+    if node:
+        return 1 + _node_size(node.left) + _node_size(node.right)
+    else:
+        return 0
 
 
 class BSTree(object):
@@ -54,6 +54,11 @@ class BSTree(object):
             yield node.value
         yield from _post_order_traversal(self._root)
 
+    @property
+    def size(self):
+        """ Returns the number of elements inside the BST. """
+        return self._size
+
     def insert(self, value):
         """ Insert a Node. It Doesn't allow duplicated values. """
         def _insert(node):
@@ -65,7 +70,7 @@ class BSTree(object):
                 node.right, inserted = _insert(node.right)
             else:
                 inserted = False
-            node.compute_size()
+            node.size = _node_size(node)
             return node, inserted
         if self._root is None:
             self._root, inserted = _BSTNode(value), True
@@ -107,7 +112,7 @@ class BSTree(object):
                 node.right, removed = _remove(node.right)
             else:
                 removed = False
-            node.compute_size()
+            node.size = _node_size(node)
             return node, removed
 
         if self._root:
@@ -150,10 +155,57 @@ class BSTree(object):
             return _contains(self._root)
         return False
 
-    @property
-    def size(self):
-        """ Returns the number of elements inside the BST. """
-        return self._size
+    def floor(self, value):
+        def _floor(node):
+            if node is None:
+                return None
+            if node.value == value:
+                return value
+            if node.value > value:
+                return _floor(node.left)
+            if node.value < value:
+                successor = _floor(node.right)
+                return node if successor is None else successor
+        return _floor(self._root)
+
+    def ceiling(self, value):
+        def _ceiling(node):
+            if node is None:
+                return None
+            if node.value == value:
+                return value
+            if node.value < value:
+                return _ceiling(node.right)
+            if node.value > value:
+                ancestor = _ceiling(node.left)
+                return node if ancestor is None else ancestor
+        return _ceiling(self._root)
+
+    def select(self, rank):
+        """ Returns the key of rank k such that precisely k other
+        keys in the BST are smaller. """
+        def _select(node, rank):
+            if node is None:
+                return None
+            if _node_size(node.left) == rank:
+                return node.value
+            if _node_size(node.left) > rank:
+                return _select(node.left, rank)
+            if _node_size(node.left) < rank:
+                return _select(node.right, rank - _node_size(node.left) - 1)
+        return _select(self._root, rank)
+
+    def rank(self, value):
+        def _rank(node):
+            if node is None:
+                return 0
+            if node.value == value:
+                return _node_size(node.left)
+            if node.value > value:
+                return _rank(node.left)
+            if node.value < value:
+                return 1 + _node_size(node.left) + _rank(node.right)
+        return _rank(self._root)
 
     def _validate_bstree(self):
         def _validate_node(node):

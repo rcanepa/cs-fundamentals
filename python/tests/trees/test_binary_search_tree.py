@@ -78,6 +78,55 @@ class BSTreeTest(unittest.TestCase):
         tree = BSTree(initialization_list)
         self.assertTrue(tree._validate_bstree())
 
+    def test_select(self):
+        tree = BSTree([70, 50, 200, 30, 60, 55, 100, 300, 80, 150])
+        self.assertEqual(tree.select(0), 30)
+        self.assertEqual(tree.select(1), 50)
+        self.assertEqual(tree.select(2), 55)
+        self.assertEqual(tree.select(3), 60)
+        self.assertEqual(tree.select(4), 70)
+        self.assertEqual(tree.select(8), 200)
+        self.assertEqual(tree.select(9), 300)
+
+    def test_rank(self):
+        tree = BSTree([70, 50, 200, 30, 60, 55, 100, 300, 80, 150])
+        self.assertEqual(tree.rank(30), 0)
+        self.assertEqual(tree.rank(50), 1)
+        self.assertEqual(tree.rank(55), 2)
+        self.assertEqual(tree.rank(60), 3)
+        self.assertEqual(tree.rank(70), 4)
+        self.assertEqual(tree.rank(200), 8)
+        self.assertEqual(tree.rank(300), 9)
+
+    def test_select_rank_are_inverses(self):
+        tree = BSTree([70, 50, 200, 30, 60, 55, 100, 300, 80, 150])
+        self.assertEqual(tree.select(tree.rank(30)), 30)
+        self.assertEqual(tree.select(tree.rank(50)), 50)
+        self.assertEqual(tree.select(tree.rank(55)), 55)
+        self.assertEqual(tree.select(tree.rank(60)), 60)
+        self.assertEqual(tree.select(tree.rank(70)), 70)
+        self.assertEqual(tree.select(tree.rank(200)), 200)
+        self.assertEqual(tree.select(tree.rank(300)), 300)
+
+    def test_floor(self):
+        tree = BSTree([100, 75, 125, 150, 40])
+        self.assertTrue(tree.floor(100), 100)
+        self.assertTrue(tree.floor(75), 75)
+        self.assertTrue(tree.floor(125), 125)
+        self.assertTrue(tree.floor(80), 75)
+        self.assertTrue(tree.floor(130), 125)
+        self.assertTrue(tree.floor(1000), 150)
+        self.assertIsNone(tree.floor(30))
+
+    def test_ceiling(self):
+        tree = BSTree([100, 75, 125, 150, 40])
+        self.assertTrue(tree.ceiling(100), 100)
+        self.assertTrue(tree.ceiling(75), 75)
+        self.assertTrue(tree.ceiling(125), 125)
+        self.assertTrue(tree.ceiling(101), 125)
+        self.assertTrue(tree.ceiling(0), 40)
+        self.assertIsNone(tree.ceiling(1000))
+
 
 if __name__ == '__main__':
     unittest.main()
