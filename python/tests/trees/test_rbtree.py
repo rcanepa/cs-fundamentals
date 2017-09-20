@@ -40,13 +40,13 @@ class RedBlackBSTreeTest(unittest.TestCase):
         values = []
         for node in tree.pre_order_traversal():
             values.append((node.value, node.color))
-        self.assertEqual(values, [("R", NodeColor.BLACK),
-                                  ("M", NodeColor.BLACK),
-                                  ("E", NodeColor.RED),
+        self.assertEqual(values, [("M", NodeColor.BLACK),
+                                  ("E", NodeColor.BLACK),
                                   ("C", NodeColor.BLACK),
                                   ("A", NodeColor.RED),
                                   ("L", NodeColor.BLACK),
                                   ("H", NodeColor.RED),
+                                  ("R", NodeColor.BLACK),
                                   ("P", NodeColor.BLACK),
                                   ("X", NodeColor.BLACK),
                                   ("S", NodeColor.RED)])

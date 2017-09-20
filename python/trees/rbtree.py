@@ -240,7 +240,7 @@ class RedBlackBSTree(object):
         right_node = node.right
         node.right = right_node.left
         right_node.left = node
-        right_node.color = NodeColor.BLACK
+        right_node.color = node.color
         node.color = NodeColor.RED
         right_node.size = node.size
         node.size = _node_size(node)
@@ -252,7 +252,7 @@ class RedBlackBSTree(object):
         left_node = node.left
         node.left = left_node.right
         left_node.right = node
-        left_node.color = NodeColor.BLACK
+        left_node.color = node.color
         node.color = NodeColor.RED
         left_node.size = node.size
         node.size = _node_size(node)
@@ -268,14 +268,13 @@ class RedBlackBSTree(object):
     @staticmethod
     def _balance(node):
         """Balance a node applying rotations and flipping colors."""
-        # Right child is red -> rotate left
-        if node.right and node.right.is_red():
+        # Right child is red and left is black -> rotate left
+        if node.right and node.right.is_red() and (not node.left or (node.left and not node.left.is_red())):
             node = RedBlackBSTree._rotate_left(node)
 
         # Two consecutive left children are red -> rotate right and flip colors
         if node.left and node.left.left and node.left.is_red() and node.left.left.is_red():
             node = RedBlackBSTree._rotate_right(node)
-            RedBlackBSTree._flip_colors(node)
 
         # Children are red -> flip colors
         if node.left and node.right and node.left.is_red() and node.right.is_red():
