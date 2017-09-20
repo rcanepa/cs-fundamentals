@@ -1,5 +1,5 @@
 import unittest
-from trees.rbtree import NodeColor ,RedBlackBSTree
+from trees.rbtree import NodeColor, RedBlackBSTree
 from utils.arrays import create_random_array
 
 
@@ -27,6 +27,15 @@ class RedBlackBSTreeTest(unittest.TestCase):
         self.assertEqual(tree.size, 1)
 
     def test_insert_preserves_left_leaning_props(self):
+        """
+        http://algs4.cs.princeton.edu/33balanced/images/redblack-construction.png
+        This image contains a visual representation of Red Black BST
+        constructed with the keys used in these tests.
+        The first assertion handle the left column Tree example and
+        the second one, handle the right column Tree example.
+        """
+
+        # Example number 1
         tree = RedBlackBSTree(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
         values = []
         for node in tree.pre_order_traversal():
@@ -42,6 +51,7 @@ class RedBlackBSTreeTest(unittest.TestCase):
                                   ("X", NodeColor.BLACK),
                                   ("S", NodeColor.RED)])
 
+        # Example number 2 (keys are inserted in order)
         tree = RedBlackBSTree(["A", "C", "E", "H", "L", "M", "P", "R", "S", "X"])
         values = []
         for node in tree.pre_order_traversal():

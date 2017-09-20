@@ -37,15 +37,21 @@ class RedBlackBSTNode(object):
 
 
 def _node_size(node):
-    """ Computes `node`'s size. """
+    """Return the `node` size."""
+    size = 0
     if node:
-        return 1 + _node_size(node.left) + _node_size(node.right)
-    else:
-        return 0
+        size += 1
+        if node.left:
+            size += node.left.size
+        if node.right:
+            size += node.right.size
+        return size
+    return size
 
 
 class RedBlackBSTree(object):
     def __init__(self, initialization_list=None):
+        """Initialize the Tree and insert Nodes if an initialization list was given."""
         self._root = None
         self._size = 0
         if initialization_list:
@@ -53,6 +59,9 @@ class RedBlackBSTree(object):
                 self.insert(v)
 
     def insert(self, value):
+        """Return True if `value` was inserted, False otherwise.
+        On repeated values it doesn't do anything.
+        """
         def _insert(node):
             if node is None:
                 return RedBlackBSTNode(value), True
@@ -70,15 +79,14 @@ class RedBlackBSTree(object):
         return inserted
 
     def remove(self, value):
-        """
-        Removes a Node which contains the value `value`.
-        To remove a Node, three cases must be handled.
+        """Remove a Node which contains the value `value` and return True
+        if the value was found. It must handle three cases:
         Case 1: leaf node
                     -> delete it
-        Case 2: node has one child
+        Case 2: one child
                     -> delete node and put its child in its place
-        Case 3: node has two children
-                    -> delete node and put its smallest child from its right branch in its place
+        Case 3: two children
+                    -> delete node and put its successor in its place
         """
         def _remove(node):
             if node.value == value:
@@ -110,7 +118,7 @@ class RedBlackBSTree(object):
             return removed
 
     def contains(self, value):
-        """ Return True if `value` is found. """
+        """Return True if `value` exists in the Tree."""
         def _contains(node):
             if node.value == value:
                 return True
@@ -124,6 +132,7 @@ class RedBlackBSTree(object):
         return False
 
     def max(self):
+        """Return the biggest value of the Tree."""
         node = self._root
         if node is None:
             return None
@@ -132,6 +141,7 @@ class RedBlackBSTree(object):
         return node.value
 
     def min(self):
+        """Return the smallest value of the Tree."""
         node = self._root
         if node is None:
             return None
@@ -140,6 +150,7 @@ class RedBlackBSTree(object):
         return node.value
 
     def floor(self, value):
+        """Return the floor element of `value`."""
         def _floor(node):
             if node is None:
                 return None
@@ -153,6 +164,7 @@ class RedBlackBSTree(object):
         return _floor(self._root)
 
     def ceiling(self, value):
+        """Return the ceiling element of `value`."""
         def _ceiling(node):
             if node is None:
                 return None
@@ -166,8 +178,8 @@ class RedBlackBSTree(object):
         return _ceiling(self._root)
 
     def select(self, rank):
-        """ Returns the key of rank k such that precisely k other
-        keys in the BST are smaller. """
+        """Return the key/value of rank k such that precisely k other
+        keys in the BST are smaller than it."""
         def _select(node, rank):
             if node is None:
                 return None
@@ -180,6 +192,7 @@ class RedBlackBSTree(object):
         return _select(self._root, rank)
 
     def rank(self, value):
+        """Return the rank of `value` in the Tree."""
         def _rank(node):
             if node is None:
                 return 0
@@ -192,7 +205,7 @@ class RedBlackBSTree(object):
         return _rank(self._root)
 
     def pre_order_traversal(self):
-        """ Traverse tree in pre-order and apply `fn` to every Node value. """
+        """Return a generator to traverse the Tree in pre-order."""
         def _pre_order_traversal(node):
             if node is None:
                 return
@@ -202,7 +215,7 @@ class RedBlackBSTree(object):
         yield from _pre_order_traversal(self._root)
 
     def in_order_traversal(self):
-        """ Traverse tree in in-order and apply `fn` to every Node value. """
+        """Return a generator to traverse the Tree in in-order."""
         def _in_order_traversal(node):
             if node is None:
                 return
@@ -212,7 +225,7 @@ class RedBlackBSTree(object):
         yield from _in_order_traversal(self._root)
 
     def post_order_traversal(self):
-        """ Traverse tree in post-order and apply `fn` to every Node value. """
+        """Return a generator to traverse the Tree in post-order."""
         def _post_order_traversal(node):
             if node is None:
                 return
@@ -223,6 +236,7 @@ class RedBlackBSTree(object):
 
     @staticmethod
     def _rotate_left(node):
+        """Perform a left rotation. Fix a right red link."""
         right_node = node.right
         node.right = right_node.left
         right_node.left = node
@@ -234,6 +248,7 @@ class RedBlackBSTree(object):
 
     @staticmethod
     def _rotate_right(node):
+        """Perform a left rotation. Fix a double left red link."""
         left_node = node.left
         node.left = left_node.right
         left_node.right = node
@@ -245,12 +260,14 @@ class RedBlackBSTree(object):
 
     @staticmethod
     def _flip_colors(node):
+        """Make children black and the parent red."""
         node.color = NodeColor.RED
         node.left.color = NodeColor.BLACK
         node.right.color = NodeColor.BLACK
 
     @staticmethod
     def _balance(node):
+        """Balance a node applying rotations and flipping colors."""
         # Right child is red -> rotate left
         if node.right and node.right.is_red():
             node = RedBlackBSTree._rotate_left(node)
@@ -268,23 +285,37 @@ class RedBlackBSTree(object):
         return node
 
     def _validate_bstree(self):
+        """Validate that keys from left sub Tree are smaller than the key from the
+        current node, and that keys from the right sub Tree are greater than the key
+        from the current node."""
         def _validate_node(node):
             if node.left:
                 if node.left.value < node.value:
                     _validate_node(node.left)
                 else:
-                    raise Exception("Invalid tree. Parent={}, LeftChild={}".format(node.value, node.left.value))
+                    raise Exception(
+                        "Invalid tree. root={}, left={}".format(
+                            node.value,
+                            node.left.value
+                        )
+                    )
 
             if node.right:
                 if node.right.value > node.value:
                     _validate_node(node.right)
                 else:
-                    raise Exception("Invalid tree. Parent={}, RightChild={}".format(node.value, node.right.value))
+                    raise Exception(
+                        "Invalid tree. root={}, right={}".format(
+                            node.value,
+                            node.right.value
+                        )
+                    )
             return True
         return _validate_node(self._root)
 
     @property
     def size(self):
+        """Return the number of Nodes."""
         return self._size
 
 
