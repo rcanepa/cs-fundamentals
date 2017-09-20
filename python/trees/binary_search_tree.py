@@ -72,10 +72,7 @@ class BSTree(object):
                 inserted = False
             node.size = _node_size(node)
             return node, inserted
-        if self._root is None:
-            self._root, inserted = _BSTNode(value), True
-        else:
-            self._root, inserted = _insert(self._root)
+        self._root, inserted = _insert(self._root)
         self._size = self._root.size
         return inserted
 
