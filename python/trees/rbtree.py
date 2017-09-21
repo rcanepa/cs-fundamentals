@@ -1,14 +1,14 @@
 """
 This file contains the implementation of a 'left-leaning'
-Red Black Binary Search Tree. The implementation is based
+Red Black Binary Search Tree (LLRBT). The implementation is based
 on the one described on the book 'Algorithms Fourth Edition'
 by Robert Sedgewick and Kevin Wayne.
 
-A Red Black BST is a Tree in which every Node have one of
+A LLRBT is a Tree in which every Node have one of
 two colors: red or black. The color of a Node represents
 the color of the link between the Node and its parent.
 
-Also, a Red Black BST must satisfy the following conditions:
+Also, a LLRBT must satisfy the following conditions:
 - Red links lean left (right red links are not allowed.)
 - No node has two red links connected to it.
 - The Tree has perfect black balance: every path from the
@@ -16,24 +16,24 @@ Also, a Red Black BST must satisfy the following conditions:
 
 http://algs4.cs.princeton.edu/33balanced/
 """
-from enum import Enum
+
+RED = True
+BLACK = False
 
 
-class NodeColor(Enum):
-    BLACK = 0
-    RED = 1
+# Used to print trees in colors
+TERM_RESET_COLOR = '\033[00m'
+TERM_RED_COLOR = '\033[01;31m'
 
 
-class RedBlackBSTNode(object):
-    def __init__(self, value):
-        self.value = value
-        self.size = 1
-        self.left = None
-        self.right = None
-        self.color = NodeColor.RED
+def is_red(node):
+    """Return if `node` is red. None nodes considered black."""
+    return False if node is None else node.color == RED
 
-    def is_red(self):
-        return self.color == NodeColor.RED
+
+def is_black(node):
+    """Return if `node` is black. None nodes considered black."""
+    return True if node is None else node.color == BLACK
 
 
 def _node_size(node):
@@ -49,7 +49,49 @@ def _node_size(node):
     return size
 
 
-class RedBlackBSTree(object):
+class LLRBT(object):
+
+    class LLRBTNode(object):
+        def __init__(self, value):
+            self.value = value
+            self.size = 1
+            self.left = None
+            self.right = None
+            self.color = RED
+
+        def __str__(self):
+            def _print_value(node):
+                """Return `node` value as a string. If the node is red,
+                the value is represented as red."""
+                if is_red(node):
+                    return "{red_color}{value}{reset_color}".format(
+                        red_color=TERM_RED_COLOR,
+                        value=node.value,
+                        reset_color=TERM_RESET_COLOR
+                    )
+                else:
+                    return str(node.value)
+
+            def _print(node, depth=0):
+                """Recursively create a string representation of `node`. The
+                representation flows from left to right.
+                        300
+                    200
+                        150
+                100
+                        80
+                    50
+                        30
+                """
+                ret = ""
+                if node.right:
+                    ret += _print(node.right, depth + 1)
+                ret += "\n" + ("    " * depth) + _print_value(node)
+                if node.left:
+                    ret += _print(node.left, depth + 1)
+                return ret
+            return _print(self, 0)
+
     def __init__(self, initialization_list=None):
         """Initialize the Tree and insert Nodes if an initialization list was given."""
         self._root = None
@@ -58,24 +100,27 @@ class RedBlackBSTree(object):
             for v in initialization_list:
                 self.insert(v)
 
+    def __str__(self):
+        return self._root.__str__() if self._root else ""
+
     def insert(self, value):
         """Return True if `value` was inserted, False otherwise.
         On repeated values it doesn't do anything.
         """
         def _insert(node):
             if node is None:
-                return RedBlackBSTNode(value), True
+                return LLRBT.LLRBTNode(value), True
             if node.value > value:
                 node.left, inserted = _insert(node.left)
             elif node.value < value:
                 node.right, inserted = _insert(node.right)
             else:
                 inserted = False
-            node = RedBlackBSTree._balance(node)
+            node = LLRBT._balance(node)
             return node, inserted
         self._root, inserted = _insert(self._root)
         self._size = self._root.size
-        self._root.color = NodeColor.BLACK
+        self._root.color = BLACK
         return inserted
 
     def remove(self, value):
@@ -110,12 +155,39 @@ class RedBlackBSTree(object):
                 node.right, removed = _remove(node.right)
             else:
                 removed = False
-            node = RedBlackBSTree._balance(node)
+            node = LLRBT._balance(node)
             return node, removed
         if self._root:
             self._root, removed = _remove(self._root)
             self._size -= int(removed)
             return removed
+
+    def remove_min(self):
+        """Delete the smallest key from the tree and return True if succeeded.
+        Deleting a black node could break the tree invariant, so we need to
+        push down a red node until we get to the leaf node (the one to be deleted)."""
+        def _remove_min(node):
+            # This is the smallest key -> delete it
+            if node.left is None:
+                return None, True
+
+            # Force left child to be red
+            if is_black(node.left) and is_black(node.left.left):
+                node = LLRBT._move_red_left(node)
+
+            node.left, removed = _remove_min(node.left)
+
+            # On the way up, fix right leaning trees and 4-nodes
+            return LLRBT._balance(node), removed
+
+        if self._root:
+            self._root, removed = _remove_min(self._root)
+            if self._root:
+                self._size = self._root.size
+                self._root.color = BLACK
+            return removed
+        else:
+            return False
 
     def contains(self, value):
         """Return True if `value` exists in the Tree."""
@@ -241,7 +313,7 @@ class RedBlackBSTree(object):
         node.right = right_node.left
         right_node.left = node
         right_node.color = node.color
-        node.color = NodeColor.RED
+        node.color = RED
         right_node.size = node.size
         node.size = _node_size(node)
         return right_node
@@ -253,37 +325,50 @@ class RedBlackBSTree(object):
         node.left = left_node.right
         left_node.right = node
         left_node.color = node.color
-        node.color = NodeColor.RED
+        node.color = RED
         left_node.size = node.size
         node.size = _node_size(node)
         return left_node
 
     @staticmethod
     def _flip_colors(node):
-        """Make children black and the parent red."""
-        node.color = NodeColor.RED
-        node.left.color = NodeColor.BLACK
-        node.right.color = NodeColor.BLACK
+        """Flip colors of `node` and its children."""
+        node.color = not node.color
+        node.left.color = not node.left.color
+        node.right.color = not node.right.color
+
+    @staticmethod
+    def _move_red_left(node):
+        """Move a red child from the right to the left sub tree."""
+        # Merge parent and children into a 4-node making their links red
+        LLRBT._flip_colors(node)
+
+        # Move red child from right branch to the left branch
+        if node.right and is_red(node.right.left):
+            node.right = LLRBT._rotate_right(node.right)
+            node = LLRBT._rotate_left(node)
+            LLRBT._flip_colors(node)
+        return node
 
     @staticmethod
     def _balance(node):
-        """Balance a node applying rotations and flipping colors."""
-        # Right child is red and left is black -> rotate left
-        if node.right and node.right.is_red() and (not node.left or (node.left and not node.left.is_red())):
-            node = RedBlackBSTree._rotate_left(node)
+        """Restore LLRBT invariant by applying rotations and flipping colors."""
+        # Fix a right leaning tree -> rotate left
+        if is_red(node.right):
+            node = LLRBT._rotate_left(node)
 
-        # Two consecutive left children are red -> rotate right and flip colors
-        if node.left and node.left.left and node.left.is_red() and node.left.left.is_red():
-            node = RedBlackBSTree._rotate_right(node)
+        # 4-node on the left -> rotate right and flip colors
+        if is_red(node.left) and is_red(node.left.left):
+            node = LLRBT._rotate_right(node)
 
-        # Children are red -> flip colors
-        if node.left and node.right and node.left.is_red() and node.right.is_red():
-            RedBlackBSTree._flip_colors(node)
+        # Split 4-node -> flip colors
+        if is_red(node.left) and is_red(node.right):
+            LLRBT._flip_colors(node)
 
         node.size = _node_size(node)
         return node
 
-    def _validate_bstree(self):
+    def _validate_bst_invariant(self):
         """Validate that keys from left sub Tree are smaller than the key from the
         current node, and that keys from the right sub Tree are greater than the key
         from the current node."""
@@ -319,4 +404,5 @@ class RedBlackBSTree(object):
 
 
 if __name__ == "__main__":
-    pass
+    tree = LLRBT(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
+    print(tree)
