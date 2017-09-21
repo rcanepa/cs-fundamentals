@@ -169,23 +169,48 @@ class LLRBT(object):
         def _remove_min(node):
             # This is the smallest key -> delete it
             if node.left is None:
-                return None, True
+                return None
 
             # Force left child to be red
             if is_black(node.left) and is_black(node.left.left):
                 node = LLRBT._move_red_left(node)
 
-            node.left, removed = _remove_min(node.left)
+            node.left = _remove_min(node.left)
 
             # On the way up, fix right leaning trees and 4-nodes
-            return LLRBT._balance(node), removed
+            return LLRBT._balance(node)
 
         if self._root:
-            self._root, removed = _remove_min(self._root)
+            self._root = _remove_min(self._root)
             if self._root:
                 self._size = self._root.size
                 self._root.color = BLACK
-            return removed
+            return True
+        else:
+            return False
+
+    def remove_max(self):
+        def _remove_max(node):
+            # Make the left red node the root (move upwards the red)
+            if is_red(node.left):
+                node = LLRBT._rotate_right(node)
+
+            # This is the greatest key -> delete it
+            if node.right is None:
+                return None
+
+            if is_black(node.right) and node.right and is_black(node.right.left):
+                node = LLRBT._move_red_right(node)
+
+            node.right = _remove_max(node.right)
+
+            return LLRBT._balance(node)
+        if self._root:
+            self._root = _remove_max(self._root)
+            if self._root:
+                self._size = self._root.size
+                self._root.color = BLACK
+            return True
         else:
             return False
 
@@ -351,10 +376,19 @@ class LLRBT(object):
         return node
 
     @staticmethod
+    def _move_red_right(node):
+        # Merge parent and children into a 4-node making their links red
+        LLRBT._flip_colors(node)
+        if node.left and is_red(node.left.left):
+            node = LLRBT._rotate_right(node)
+            LLRBT._flip_colors(node)
+        return node
+
+    @staticmethod
     def _balance(node):
         """Restore LLRBT invariant by applying rotations and flipping colors."""
         # Fix a right leaning tree -> rotate left
-        if is_red(node.right):
+        if is_black(node.left) and is_red(node.right):
             node = LLRBT._rotate_left(node)
 
         # 4-node on the left -> rotate right and flip colors

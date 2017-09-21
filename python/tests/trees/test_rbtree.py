@@ -74,7 +74,12 @@ class RedBlackBSTreeTest(unittest.TestCase):
 
     def test_remove_min_preserves_llrb_invariant(self):
         tree = LLRBT(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
-
+        """Initial tree (! = RED).
+                        M
+                E               R
+             C     L         P     X
+          !A    !H              !S
+        """
         # Assert deletion of the smallest key and size of the tree
         self.assertEqual(tree.size, 10)
         self.assertTrue(tree.remove_min())
@@ -85,6 +90,13 @@ class RedBlackBSTreeTest(unittest.TestCase):
         values = []
         for node in tree.pre_order_traversal():
             values.append((node.value, node.color))
+
+        """Representation after a delete_min operation (! = RED).
+                        M
+                E               R
+             C     L         P     X
+                !H              !S
+        """
         self.assertEqual(values, [("M", BLACK),
                                   ("E", BLACK),
                                   ("C", BLACK),
@@ -104,6 +116,13 @@ class RedBlackBSTreeTest(unittest.TestCase):
         values = []
         for node in tree.pre_order_traversal():
             values.append((node.value, node.color))
+
+        """Representation after two delete_min operations (! = RED).
+                        M
+                H               R
+             E     L         P     X
+                                !S
+        """
         self.assertEqual(values, [("M", BLACK),
                                   ("H", BLACK),
                                   ("E", BLACK),
@@ -112,6 +131,66 @@ class RedBlackBSTreeTest(unittest.TestCase):
                                   ("P", BLACK),
                                   ("X", BLACK),
                                   ("S", RED)])
+
+    def test_remove_max_preserves_llrb_invariant(self):
+        tree = LLRBT(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
+        """Initial tree (! = RED).
+                        M
+                E               R
+             C     L         P     X
+          !A    !H              !S
+        """
+        # Assert deletion of the greatest key and size of the tree
+        self.assertEqual(tree.size, 10)
+        self.assertTrue(tree.remove_max())
+        self.assertEqual(tree.size, 9)
+        self.assertFalse(tree.contains("X"))
+
+        # Assert the tree has the correct shape
+        values = []
+        for node in tree.pre_order_traversal():
+            values.append((node.value, node.color))
+
+        """Representation after a delete_max operation (! = RED).
+                        M
+                E               R
+             C     L         P     S
+          !A    !H
+        """
+        self.assertEqual(values, [("M", BLACK),
+                                  ("E", BLACK),
+                                  ("C", BLACK),
+                                  ("A", RED),
+                                  ("L", BLACK),
+                                  ("H", RED),
+                                  ("R", BLACK),
+                                  ("P", BLACK),
+                                  ("S", BLACK)])
+
+        # Assert deletion of the greatest key and size of the tree
+        tree.remove_max()
+        self.assertEqual(tree.size, 8)
+        self.assertFalse(tree.contains("S"))
+
+        # Assert the tree has the correct shape
+        values = []
+        for node in tree.pre_order_traversal():
+            values.append((node.value, node.color))
+
+        """Representation after two delete_max operations (! = RED).
+                        M
+               !E               R
+             C     L         !P
+          !A    !H
+        """
+        self.assertEqual(values, [("M", BLACK),
+                                  ("E", RED),
+                                  ("C", BLACK),
+                                  ("A", RED),
+                                  ("L", BLACK),
+                                  ("H", RED),
+                                  ("R", BLACK),
+                                  ("P", RED)])
 
     def test_removes_return_boolean_result(self):
         tree = LLRBT([100, 75, 125])
