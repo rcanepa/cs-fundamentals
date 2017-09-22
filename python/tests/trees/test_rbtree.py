@@ -17,7 +17,7 @@ class RedBlackBSTreeTest(unittest.TestCase):
         tree.insert(200)
         tree.insert(50)
         self.assertEqual(tree.size, 3)
-        tree.remove(100)
+        tree.remove_min()
         self.assertEqual(tree.size, 2)
 
     def test_does_not_insert_repeated_values(self):
@@ -72,7 +72,7 @@ class RedBlackBSTreeTest(unittest.TestCase):
         self.assertTrue(tree.insert(100))
         self.assertFalse(tree.insert(100))
 
-    def test_remove_min_preserves_llrb_invariant(self):
+    def test_remove_min_preserves_llrbt_invariant(self):
         tree = LLRBT(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
         """Initial tree (! = RED).
                         M
@@ -132,7 +132,7 @@ class RedBlackBSTreeTest(unittest.TestCase):
                                   ("X", BLACK),
                                   ("S", RED)])
 
-    def test_remove_max_preserves_llrb_invariant(self):
+    def test_remove_max_preserves_llrbt_invariant(self):
         tree = LLRBT(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
         """Initial tree (! = RED).
                         M
@@ -234,10 +234,22 @@ class RedBlackBSTreeTest(unittest.TestCase):
             values.append(v.value)
         self.assertEqual(values, sorted(initialization_list))
 
-    def test_preserve_binary_search_invariant(self):
-        initialization_list = create_random_array(500)
+    def test_integrity(self):
+        initialization_list = create_random_array(1000)
         tree = LLRBT(initialization_list)
-        self.assertTrue(tree._validate_bst_invariant())
+
+        # Delete 500 items
+        for idx, n in enumerate(initialization_list[:800]):
+            if n % 3 == 0:
+                tree.remove_min()
+            elif n % 3 == 1:
+                tree.remove_max()
+            else:
+                tree.remove(initialization_list[idx])
+
+        # If it raises an IntegrityError
+        integrity_result = tree.check_integrity()
+        self.assertGreater(integrity_result, 0)
 
     def test_select(self):
         tree = LLRBT([70, 50, 200, 30, 60, 55, 100, 300, 80, 150])

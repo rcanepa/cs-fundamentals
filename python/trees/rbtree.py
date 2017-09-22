@@ -15,6 +15,9 @@ Also, a LLRBT must satisfy the following conditions:
   root to a null link has the same number of black links.
 
 http://algs4.cs.princeton.edu/33balanced/
+
+Here another good explanation of the algorithm:
+http://www.teachsolaisgames.com/articles/balanced_left_leaning.html
 """
 
 RED = True
@@ -125,38 +128,57 @@ class LLRBT(object):
 
     def remove(self, value):
         """Remove a Node which contains the value `value` and return True
-        if the value was found. It must handle three cases:
-        Case 1: leaf node
-                    -> delete it
-        Case 2: one child
-                    -> delete node and put its child in its place
-        Case 3: two children
-                    -> delete node and put its successor in its place
-        """
+        if the value was found."""
         def _remove(node):
-            if node.value == value:
-                # Cases 1 and 2
-                if not (node.left and node.right):
-                    return node.left or node.right, True
-                # Case 3
+            # Continue the search on the left tree.
+            if node.value > value:
+                if node.left:
+                    # If we have two consecutive black links on the left,
+                    # we move one red node from the right to the left.
+                    if is_black(node.left) and is_black(node.left.left):
+                        node = LLRBT._move_red_left(node)
+                    node.left, removed = _remove(node.left)
+                # In this case, the value is not present in the tree.
                 else:
-                    successor_parent, successor = node, node.right
-                    while successor.left:
-                        successor_parent, successor = successor, successor.left
-                    successor.left = node.left
-                    # The successor was found to the left of its right branch
-                    if not successor_parent == node:
-                        successor_parent.left = successor.right
-                        successor.right = node.right
-                    return successor, True
-            elif node.value > value and node.left:
-                node.left, removed = _remove(node.left)
-            elif node.value < value and node.right:
-                node.right, removed = _remove(node.right)
+                    removed = False
+
+            # Two things can happen here: the search must continue on the
+            # right branch or the value is present in the current node.
             else:
-                removed = False
-            node = LLRBT._balance(node)
-            return node, removed
+                # In any case, if the left child is red we should move it
+                # to the right. This will allow us to eventually delete
+                # a node from the right branch.
+                if is_red(node.left):
+                    node = LLRBT._rotate_right(node)
+
+                # Node found. Delete it and return True.
+                if node.value == value and node.right is None:
+                    return None, True
+
+                # At this point, the search continues on the right sub tree.
+                if node.right:
+                    # If we have a right node on the left, we move it to
+                    # the right.
+                    if is_black(node.right) and is_black(node.right.left):
+                        node = LLRBT._move_red_right(node)
+
+                    # The value was found, so we need to replace that node
+                    # with its successor.
+                    if node.value == value:
+                        successor, _ = LLRBT._min(node.right)
+                        node.value = successor.value
+                        node.right = LLRBT._remove_min(node.right)
+                        removed = True
+
+                    # The search continues on the right branch
+                    else:
+                        node.right, removed = _remove(node.right)
+
+                # The current node doesn't have the value we are looking for
+                # and the right branch is empty.
+                else:
+                    removed = False
+            return LLRBT._balance(node), removed
         if self._root:
             self._root, removed = _remove(self._root)
             self._size -= int(removed)
@@ -166,28 +188,30 @@ class LLRBT(object):
         """Delete the smallest key from the tree and return True if succeeded.
         Deleting a black node could break the tree invariant, so we need to
         push down a red node until we get to the leaf node (the one to be deleted)."""
-        def _remove_min(node):
-            # This is the smallest key -> delete it
-            if node.left is None:
-                return None
-
-            # Force left child to be red
-            if is_black(node.left) and is_black(node.left.left):
-                node = LLRBT._move_red_left(node)
-
-            node.left = _remove_min(node.left)
-
-            # On the way up, fix right leaning trees and 4-nodes
-            return LLRBT._balance(node)
-
         if self._root:
-            self._root = _remove_min(self._root)
+            self._root = LLRBT._remove_min(self._root)
             if self._root:
                 self._size = self._root.size
                 self._root.color = BLACK
             return True
         else:
             return False
+
+    @staticmethod
+    def _remove_min(node):
+        """Remove the smallest node of the tree rooted on `node`."""
+        # This is the smallest key -> delete it
+        if node.left is None:
+            return None
+
+        # Force left child to be red
+        if is_black(node.left) and is_black(node.left.left):
+            node = LLRBT._move_red_left(node)
+
+        node.left = LLRBT._remove_min(node.left)
+
+        # On the way up, fix right leaning trees and 4-nodes
+        return LLRBT._balance(node)
 
     def remove_max(self):
         def _remove_max(node):
@@ -239,12 +263,21 @@ class LLRBT(object):
 
     def min(self):
         """Return the smallest value of the Tree."""
-        node = self._root
-        if node is None:
+        min_node, found = LLRBT._min(self._root)
+        if found:
+            return min_node.value
+        else:
             return None
+
+    @staticmethod
+    def _min(node):
+        """Return the smallest node of the tree rooted on `node`. Return True
+        if there is a node, False otherwise."""
+        if node is None:
+            return None, False
         while node.left:
             node = node.left
-        return node.value
+        return node, True
 
     def floor(self, value):
         """Return the floor element of `value`."""
@@ -402,34 +435,44 @@ class LLRBT(object):
         node.size = _node_size(node)
         return node
 
-    def _validate_bst_invariant(self):
-        """Validate that keys from left sub Tree are smaller than the key from the
-        current node, and that keys from the right sub Tree are greater than the key
-        from the current node."""
-        def _validate_node(node):
-            if node.left:
-                if node.left.value < node.value:
-                    _validate_node(node.left)
-                else:
-                    raise Exception(
-                        "Invalid tree. root={}, left={}".format(
-                            node.value,
-                            node.left.value
-                        )
-                    )
+    def check_integrity(self):
+        def _check_node_integrity(node):
+            if node is None:
+                return 1
 
-            if node.right:
-                if node.right.value > node.value:
-                    _validate_node(node.right)
+            # Check there is no two consecutive left red nodes
+            if is_red(node) and is_red(node.left):
+                raise IntegrityError("RED VIOLATION",
+                                     "Two consecutive left red nodes.",
+                                     node)
+
+            left_height = _check_node_integrity(node.left)
+            right_height = _check_node_integrity(node.right)
+
+            # Check if it's a valid binary search tree
+            if (node.left and node.left.value >= node.value) or \
+                    (node.right and node.right.value <= node.value):
+                raise IntegrityError(
+                    "BINARY SEARCH TREE VIOLATION",
+                    "Left child is bigger than root or right child is smaller than root.",
+                    node)
+
+            # Check black height of both children
+            if left_height != 0 and right_height != 0 and left_height != right_height:
+                raise IntegrityError("BLACK HEIGHT VIOLATION",
+                                     "Left and right subtree doesn't have the same black height.",
+                                     node)
+
+            # If node is black, add 1 to the height
+            if left_height != 0:
+                if is_red(node):
+                    return left_height
                 else:
-                    raise Exception(
-                        "Invalid tree. root={}, right={}".format(
-                            node.value,
-                            node.right.value
-                        )
-                    )
-            return True
-        return _validate_node(self._root)
+                    return left_height + 1
+            else:
+                return 0
+
+        return _check_node_integrity(self._root)
 
     @property
     def size(self):
@@ -437,6 +480,20 @@ class LLRBT(object):
         return self._size
 
 
+class IntegrityError(Exception):
+    """Class to signal integrity errors."""
+    def __init__(self, invalidation_type, message, node):
+        self.invalidation_type = invalidation_type
+        self.message = message
+        self.node = node
+
+
 if __name__ == "__main__":
-    tree = LLRBT(["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"])
-    print(tree)
+    initialization_list = ["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"]
+    tree = LLRBT()
+    for value in initialization_list:
+        tree.insert(value)
+        print("-> Inserted ", value)
+        print(tree)
+        print("####################################")
+        tree.check_integrity()
