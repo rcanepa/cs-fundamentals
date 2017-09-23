@@ -490,10 +490,12 @@ class IntegrityError(Exception):
 
 if __name__ == "__main__":
     initialization_list = ["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"]
+    # initialization_list = range(20)
     tree = LLRBT()
     for value in initialization_list:
         tree.insert(value)
-        print("-> Inserted ", value)
+        print(TERM_RED_COLOR + "-> Last key inserted: " + value + TERM_RESET_COLOR)
+        print("------------------------------------")
         print(tree)
-        print("####################################")
+        print("\n")
         tree.check_integrity()
