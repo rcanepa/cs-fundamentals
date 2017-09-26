@@ -26,6 +26,11 @@ DEFAULT_GRAPH_NODE_ATTR = {
     "fillcolor": "#cfd3d6",
 }
 
+RED_NODE_ATTR = {
+    "fontcolor": "white",
+    "fillcolor": RED_COLOR
+}
+
 DEFAULT_GRAPH_EDGE_ATTR = {
     "color": "black",
     "arrowhead": "vee",
@@ -40,10 +45,7 @@ def add_node(graph, node):
             ^              ^                      ^
          string           see graphviz documentation"""
     node_id, node_attr, graph_node_attr = node
-    if graph_node_attr:
-        graph.attr("node", **graph_node_attr)
-    graph.node(node_id, **node_attr)
-    graph.attr("node", **DEFAULT_GRAPH_NODE_ATTR)
+    graph.node(node_id, **node_attr, **graph_node_attr)
     return graph
 
 
@@ -54,9 +56,7 @@ def add_edge(graph, edge):
             ^              ^                      ^
          string          string        see graphviz documentation"""
     source_node_id, destiny_node_id, graph_edge_attr = edge
-    graph.attr("edge", **graph_edge_attr)
-    graph.edge(source_node_id, destiny_node_id)
-    graph.attr("edge", **DEFAULT_GRAPH_EDGE_ATTR)
+    graph.edge(source_node_id, destiny_node_id, **graph_edge_attr)
     return graph
 
 
@@ -78,40 +78,32 @@ def generate_graph(tree, initialization_list, format="pdf"):
     for idx, node in enumerate(tree.pre_order_traversal()):
         node_id = str(node.value)
         node_label = str(node.value)
-        add_node(graph, (node_id, {"label": node_label}, {}))
+        if is_red(node):
+            add_node(graph, (node_id, {"label": node_label}, RED_NODE_ATTR))
+        else:
+            add_node(graph, (node_id, {"label": node_label}, {}))
 
         # Create edge between node and its left child.
         if node.left:
             node_left_id = str(node.left.value)
-
-            # Paint edge red if the left child is red.
-            if is_red(node.left):
-                add_edge(graph, (node_id, node_left_id, {"color": RED_COLOR}))
-
-            else:
-                add_edge(graph, (node_id, node_left_id, {"color": "black"}))
+            add_edge(graph, (node_id, node_left_id, {}))
 
         # Node doesn't have a left child so we put a dot in its place.
         else:
             null_node_value = "left-null-" + str(idx)
             add_node(graph, (null_node_value, {}, {"shape": NONE_NODE_SHAPE}))
-            add_edge(graph, (node_id, null_node_value, {"color": "black"}))
+            add_edge(graph, (node_id, null_node_value, {}))
 
         # Create edge between node and its right child.
         if node.right:
             node_right_id = str(node.right.value)
-
-            # Paint edge red if the right child is red.
-            if is_red(node.right):
-                add_edge(graph, (node_id, node_right_id, {"color": RED_COLOR}))
-            else:
-                add_edge(graph, (node_id, node_right_id, {"color": "black"}))
+            add_edge(graph, (node_id, node_right_id, {}))
 
         # Node doesn't have a left child so we put a dot in its place.
         else:
             null_node_value = "right-null-" + str(idx)
             add_node(graph, (null_node_value, {}, {"shape": NONE_NODE_SHAPE}))
-            add_edge(graph, (node_id, null_node_value, {"color": "black"}))
+            add_edge(graph, (node_id, null_node_value, {}))
 
     return graph
 
@@ -142,7 +134,11 @@ def generate_graph_per_insert(tree, initialization_list, format="pdf"):
             for idx, node in enumerate(tree.pre_order_traversal()):
                 node_id = str(graph_number) + "." + str(node.value)
                 node_label = str(node.value)
-                add_node(sub_graph, (node_id, {"label": node_label}, {}))
+
+                if is_red(node):
+                    add_node(sub_graph, (node_id, {"label": node_label}, RED_NODE_ATTR))
+                else:
+                    add_node(sub_graph, (node_id, {"label": node_label}, {}))
 
                 # Create edge between node and its left child.
                 if node.left:
@@ -150,16 +146,16 @@ def generate_graph_per_insert(tree, initialization_list, format="pdf"):
 
                     # Paint edge red if the left child is red.
                     if is_red(node.left):
-                        add_edge(sub_graph, (node_id, node_left_id, {"color": RED_COLOR}))
+                        add_edge(sub_graph, (node_id, node_left_id, {}))
 
                     else:
-                        add_edge(sub_graph, (node_id, node_left_id, {"color": "black"}))
+                        add_edge(sub_graph, (node_id, node_left_id, {}))
 
                 # Node doesn't have a left child so we put a dot in its place.
                 else:
                     null_node_id = str(graph_number) + "-left-null-" + str(idx)
                     add_node(sub_graph, (null_node_id, {}, {"shape": NONE_NODE_SHAPE}))
-                    add_edge(sub_graph, (node_id, null_node_id, {"color": "black"}))
+                    add_edge(sub_graph, (node_id, null_node_id, {}))
 
                 # Create edge between node and its right child.
                 if node.right:
@@ -167,15 +163,15 @@ def generate_graph_per_insert(tree, initialization_list, format="pdf"):
 
                     # Paint edge red if the right child is red.
                     if is_red(node.right):
-                        add_edge(sub_graph, (node_id, node_right_id, {"color": RED_COLOR}))
+                        add_edge(sub_graph, (node_id, node_right_id, {}))
                     else:
-                        add_edge(sub_graph, (node_id, node_right_id, {"color": "black"}))
+                        add_edge(sub_graph, (node_id, node_right_id, {}))
 
                 # Node doesn't have a left child so we put a dot in its place.
                 else:
                     null_node_id = str(graph_number) + "-right-null-" + str(idx)
                     add_node(sub_graph, (null_node_id, {}, {"shape": NONE_NODE_SHAPE}))
-                    add_edge(sub_graph, (node_id, null_node_id, {"color": "black"}))
+                    add_edge(sub_graph, (node_id, null_node_id, {}))
 
     return main_graph
 
@@ -186,5 +182,6 @@ if __name__ == "__main__":
     tree = LLRBT()
     # graph = generate_graph(tree, initialization_list)
     graph = generate_graph_per_insert(tree, initialization_list)
+    print(graph.source)
     graph.render("trees/rbtree.gv", view=True)
 
