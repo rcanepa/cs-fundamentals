@@ -118,7 +118,7 @@ def generate_graph_per_insert(tree, initialization_list, format="pdf"):
     main_graph = Digraph(format=format,
                          node_attr=DEFAULT_GRAPH_NODE_ATTR,
                          edge_attr=DEFAULT_GRAPH_EDGE_ATTR)
-    main_graph.attr(rankdir='LR')  # print sub graph from top to bottom
+    main_graph.attr(rankdir="TB", newrank="true")  # print sub graph from top to bottom
 
     # For every key to be inserted, create a sub graph representing
     # the tree after the insertion.
