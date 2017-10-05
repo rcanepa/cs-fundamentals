@@ -1,5 +1,5 @@
 class _BSTNode(object):
-    """ Node class used by the Binary Search Tree. """
+    """Binary Search Tree Node."""
     def __init__(self, value):
         self.value = value
         self.size = 1
@@ -8,7 +8,7 @@ class _BSTNode(object):
 
 
 def _node_size(node):
-    """ Computes `node`'s size. """
+    """Computes `node`'s size."""
     if node:
         return 1 + _node_size(node.left) + _node_size(node.right)
     else:
@@ -16,7 +16,7 @@ def _node_size(node):
 
 
 class BSTree(object):
-    """ Binary Search Tree implementation which doesn't allow repeated Nodes. """
+    """Binary Search Tree implementation which doesn't allow repeated Nodes."""
     def __init__(self, initialization_list=None):
         self._root = None
         self._size = 0
@@ -25,42 +25,42 @@ class BSTree(object):
                 self.insert(element)
 
     def pre_order_traversal(self):
-        """ Traverse tree in pre-order and apply `fn` to every Node value. """
+        """Traverse tree in pre-order and apply `fn` to every Node value."""
         def _pre_order_traversal(node):
             if node is None:
                 return
-            yield node.value
+            yield node
             yield from _pre_order_traversal(node.left)
             yield from _pre_order_traversal(node.right)
         yield from _pre_order_traversal(self._root)
 
     def in_order_traversal(self):
-        """ Traverse tree in in-order and apply `fn` to every Node value. """
+        """Traverse tree in in-order and apply `fn` to every Node value."""
         def _in_order_traversal(node):
             if node is None:
                 return
             yield from _in_order_traversal(node.left)
-            yield node.value
+            yield node
             yield from _in_order_traversal(node.right)
         yield from _in_order_traversal(self._root)
 
     def post_order_traversal(self):
-        """ Traverse tree in post-order and apply `fn` to every Node value. """
+        """Traverse tree in post-order and apply `fn` to every Node value."""
         def _post_order_traversal(node):
             if node is None:
                 return
             yield from _post_order_traversal(node.left)
             yield from _post_order_traversal(node.right)
-            yield node.value
+            yield node
         yield from _post_order_traversal(self._root)
 
     @property
     def size(self):
-        """ Returns the number of elements inside the BST. """
+        """Returns the number of elements inside the BST."""
         return self._size
 
     def insert(self, value):
-        """ Insert a Node. It Doesn't allow duplicated values. """
+        """Insert a Node. It Doesn't allow duplicated values."""
         def _insert(node):
             if node is None:
                 return _BSTNode(value), True
@@ -77,9 +77,9 @@ class BSTree(object):
         return inserted
 
     def remove(self, value):
-        """
-        Removes a Node which contains the value `value`.
+        """Removes a Node which contains the value `value`.
         To remove a Node, three cases must be handled.
+
         Case 1: leaf node
                     -> delete it
         Case 2: node has one child
@@ -118,7 +118,7 @@ class BSTree(object):
             return removed
 
     def min(self):
-        """ Returns the smallest element of the tree. """
+        """Returns the smallest element of the tree."""
         if self._root:
             node = self._root
             while node.left:
@@ -128,7 +128,7 @@ class BSTree(object):
             return None
 
     def max(self):
-        """ Returns the biggest element of the tree. """
+        """Returns the biggest element of the tree."""
         if self._root:
             node = self._root
             while node.right:
@@ -138,7 +138,7 @@ class BSTree(object):
             return None
 
     def contains(self, value):
-        """ Return True if `value` is found. """
+        """Return True if `value` is found."""
         def _contains(node):
             if node.value == value:
                 return True
@@ -153,6 +153,7 @@ class BSTree(object):
         return False
 
     def floor(self, value):
+        """Return the greatest value that is smaller or equal to value."""
         def _floor(node):
             if node is None:
                 return None
@@ -166,6 +167,7 @@ class BSTree(object):
         return _floor(self._root)
 
     def ceiling(self, value):
+        """Return the smallest value that is greater or equal to value."""
         def _ceiling(node):
             if node is None:
                 return None
@@ -179,8 +181,8 @@ class BSTree(object):
         return _ceiling(self._root)
 
     def select(self, rank):
-        """ Returns the key of rank k such that precisely k other
-        keys in the BST are smaller. """
+        """Return the key of rank k such that precisely k other
+        keys in the BST are smaller."""
         def _select(node, rank):
             if node is None:
                 return None
@@ -193,6 +195,8 @@ class BSTree(object):
         return _select(self._root, rank)
 
     def rank(self, value):
+        """Return the position of a value in the BST as if its values were part of
+        a sorted array."""
         def _rank(node):
             if node is None:
                 return 0
@@ -210,13 +214,19 @@ class BSTree(object):
                 if node.left.value < node.value:
                     _validate_node(node.left)
                 else:
-                    raise Exception("Invalid tree. Parent={}, LeftChild={}".format(node.value, node.left.value))
+                    raise Exception("Invalid tree. Parent={}, LeftChild={}".format(
+                        node.value,
+                        node.left.value
+                    ))
 
             if node.right:
                 if node.right.value > node.value:
                     _validate_node(node.right)
                 else:
-                    raise Exception("Invalid tree. Parent={}, RightChild={}".format(node.value, node.right.value))
+                    raise Exception("Invalid tree. Parent={}, RightChild={}".format(
+                        node.value,
+                        node.right.value
+                    ))
             return True
         return _validate_node(self._root)
 

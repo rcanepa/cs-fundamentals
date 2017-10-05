@@ -40,7 +40,7 @@ class BSTreeTest(unittest.TestCase):
         tree = BSTree([100, 75, 50, 95, 125, 150, 110])
         tree.remove(100)
         root = next(tree.pre_order_traversal())
-        self.assertEqual(root, 110)
+        self.assertEqual(root.value, 110)
 
     def test_removing_min_until_empty(self):
         initialization_list = [100, 75, 125, -30, 150, 40, 20, 130]
@@ -69,8 +69,8 @@ class BSTreeTest(unittest.TestCase):
         initialization_list = [100, 75, 125, -30, 150, 40, 20, 130]
         tree = BSTree(initialization_list)
         values = []
-        for v in tree.in_order_traversal():
-            values.append(v)
+        for node in tree.in_order_traversal():
+            values.append(node.value)
         self.assertEqual(values, sorted(initialization_list))
 
     def test_preserve_binary_search_invariant(self):
