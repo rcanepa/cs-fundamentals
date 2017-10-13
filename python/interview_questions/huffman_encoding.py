@@ -13,12 +13,12 @@ Steps:
 7. Encode the text with the HashTable.
 8. Write the bytes to a file.
 """
-import struct
+import sys
 from collections import Counter
 from queue import PriorityQueue
 
 
-class HuffmanCoder(object):
+class HuffmanEncoder(object):
     class HoffmanNode(object):
         def __init__(self, weight):
             self.weight = weight
@@ -40,21 +40,22 @@ class HuffmanCoder(object):
             return "Leaf [{}, {}]".format(self.char, self.weight)
 
     def __init__(self):
-        self._huffman_tree = None
-        self._huffman_encoding_table = None
-        self.original_text_size = 0  # original data in bits
-        self.encoded_text_size = 0  # encoded data in bits
+        self._encoding_tree = None  # huffman binary tree
+        self._encoding_table = None  # mapping from char to binary representation
+        self._reversed_encoding_table = None  # mapping from binary representation to char
+        self.source_bits = 0  # original data in bits
+        self.encoded_bits = 0  # encoded data in bits
         self.compression_rate = 0.0  # ratio between both
         self.padding_bits = 0  # bits added at the end to complete a byte
 
-    def generate_tree(self, text):
-        char_frequencies = Counter(text)
+    def generate_tree(self, source):
+        char_frequencies = Counter(source)
 
         # n = the number of unique chars.
         # Load the priority queue O(n * log(n)).
         pq = PriorityQueue()
         for char, weight in char_frequencies.items():
-            node = HuffmanCoder.HoffmanLeafNode(char, weight)
+            node = HuffmanEncoder.HoffmanLeafNode(char, weight)
             pq.put((node.weight, node))
 
         # Constructing the tree with a priority queue is O(n log(n)).
@@ -62,94 +63,96 @@ class HuffmanCoder(object):
         while pq.qsize() > 1:
             (w1, n1) = pq.get()
             (w2, n2) = pq.get()
-            parent_node = HuffmanCoder.HoffmanNode(n1.weight + n2.weight)
+            parent_node = HuffmanEncoder.HoffmanNode(n1.weight + n2.weight)
             parent_node.left = n1
             parent_node.right = n2
             pq.put((parent_node.weight, parent_node))
 
         (_, encoding_tree) = pq.get()
-        self._huffman_tree = encoding_tree
+        self._encoding_tree = encoding_tree
         return encoding_tree
 
-    def generate_codes_table(self):
+    def generate_encoding_table(self):
         """O(n)"""
-        codes_table = dict()
+        encoding_table = dict()
+        reversed_encoding_table = dict()
 
         def generate_path(tree, path=""):
-            if isinstance(tree, HuffmanCoder.HoffmanLeafNode):
-                codes_table[tree.char] = path
+            if isinstance(tree, HuffmanEncoder.HoffmanLeafNode):
+                encoding_table[tree.char] = path
             else:
                 generate_path(tree.left, path + "0")
                 generate_path(tree.right, path + "1")
 
-        generate_path(self._huffman_tree)
-        self._huffman_encoding_table = codes_table
-        return codes_table
+        generate_path(self._encoding_tree)
 
-    def encode_text(self, text):
-        self.original_text_size = len(text) * 8
-        encoded_text = ""
-        for c in text:
-            encoded_text += self._huffman_encoding_table[c]
-        encoded_bits = len(encoded_text)
+        for char, path in encoding_table.items():
+            reversed_encoding_table[path] = char
+        self._encoding_table = encoding_table
+        self._reversed_encoding_table = reversed_encoding_table
+        return encoding_table
+
+    def encode(self, source):
+        self.source_bits = len(source) * 8
+        encoded_data = ""
+        for c in source:
+            encoded_data += self._encoding_table[c]
+        encoded_bits = len(encoded_data)
 
         # Make sure that we have complete bytes. If not, pad at the end
         # with zeros.
         if (encoded_bits % 8) != 0:
             padding_zeros = 8 - (encoded_bits % 8)
-            encoded_text += "0" * padding_zeros
+            encoded_data += "0" * padding_zeros
             self.padding_bits = padding_zeros
 
-        self.encoded_text_size = len(encoded_text)
-        self.compression_rate = len(encoded_text) / (len(text) * 8)
-        return encoded_text
+        self.encoded_bits = len(encoded_data)
+        self.compression_rate = len(encoded_data) / (len(source) * 8)
+        return encoded_data
 
-    def encoded_text_to_bytes(self, encoded_text):
-        if self.encoded_text_size % 8 != 0:
+    def encoded_data_to_bytes(self, encoded_data):
+        if self.encoded_bits % 8 != 0:
             raise Exception("The number of encoded bits isn't a multiple of 8.")
 
         encoded_bytes = bytearray()
-        for starting_point in range(0, self.encoded_text_size, 8):
-            encoded_bytes.append(int(encoded_text[starting_point: starting_point + 8], 2))
+        for starting_point in range(0, self.encoded_bits, 8):
+            # print("### Encoding bytes:", encoded_data[starting_point: starting_point + 8])
+            encoded_bytes.append(int(encoded_data[starting_point: starting_point + 8], 2))
 
-        print("### Encoded bytes:", encoded_bytes)
+        # print("### Encoded bytes:", encoded_bytes)
+        # print("### Number of encoded bytes:", len(encoded_bytes))
         return encoded_bytes
 
-    def compress_text(self, text):
-        self.generate_tree(text)
-        self.generate_codes_table()
-        encoded_text = self.encode_text(text)
-        self.encoded_text_to_bytes(encoded_text)
-        return encoded_text
+    def compress_text(self, source):
+        self.generate_tree(source)
+        self.generate_encoding_table()
+        encoded_data = self.encode(source)
+        print("# Encoded data:", encoded_data)
+        encoded_bytes = self.encoded_data_to_bytes(encoded_data)
+        return encoded_bytes
+
+    def decode_data(self, encoded_bytes):
+        reading_format = "0{}b".format(len(encoded_bytes) * 8)
+        encoded_bits = format(int.from_bytes(read_bytes, byteorder='big'), reading_format)
+        key = ""
+        decoded_data = ""
+        for bit in encoded_bits[:self.encoded_bits - self.padding_bits]:
+            key += bit
+            if key in self._reversed_encoding_table:
+                decoded_data += self._reversed_encoding_table[key]
+                key = ""
+        # print(decoded_data)
+        return decoded_data
 
 
-data = ["happy hip hop", "abracadabra"]
-
+# data = ["happy hip hop", "abracadabra"]
+data = ["happy hip hop"]
 
 if __name__ == "__main__":
-    coder = HuffmanCoder()
+    coder = HuffmanEncoder()
     for index, text in enumerate(data):
-        encoded_text = coder.compress_text(text)
-
-        print("Original text length:", coder.original_text_size, "bits")
-        print("Encoded text length:", coder.encoded_text_size, "bits")
-        print("Compression rate:", coder.compression_rate * 100, "%")
-        print(coder._huffman_encoding_table)
-        print("Encoded text:", encoded_text)
-
-        output_file = open("compressed_data_{}".format(index), "wb")
-
-        bytes_to_write = (len(encoded_text) + 7) // 8
-        print("Bytes to write:", bytes_to_write)
-        starting_bit = 0
-        output_file.flush()
-
-        for byte in range(1, bytes_to_write + 1):
-            ending_bit = (starting_bit // 8 + 1) * 8
-            print("Writing from bit", starting_bit, "to bit", ending_bit - 1, ":", encoded_text[starting_bit:ending_bit])
-            packed = struct.pack("<c", int(encoded_text[starting_bit:ending_bit], 2).to_bytes(1, 'little'))
-            output_file.write(packed)
-            output_file.flush()
-            starting_bit = ending_bit
-
-        output_file.close()
+        encoded_bytes = coder.compress_text(text)
+        # sys.stdout.buffer.write(encoded_bytes)
+        with open("compressed_data_2", "rb") as f:
+            read_bytes = f.read()
+            print("# Decoded data:", coder.decode_data(read_bytes))
