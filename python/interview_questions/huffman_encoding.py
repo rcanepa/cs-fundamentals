@@ -18,6 +18,11 @@ from collections import Counter
 from queue import PriorityQueue
 
 
+"""
+    TODO:
+        - Check why fails with long strings.
+"""
+
 class HuffmanEncoder(object):
     class HoffmanNode(object):
         def __init__(self, weight):
@@ -49,6 +54,10 @@ class HuffmanEncoder(object):
         self.padding_bits = 0  # bits added at the end to complete a byte
 
     def generate_tree(self, source):
+        """Generate a Huffman Tree according to the frequency of each character
+        present in the `source` text.
+
+        This operation is O(n * log(n))."""
         char_frequencies = Counter(source)
 
         # n = the number of unique chars.
@@ -73,7 +82,12 @@ class HuffmanEncoder(object):
         return encoding_tree
 
     def generate_encoding_table(self):
-        """O(n)"""
+        """Generate an encoding table given a Huffman Tree. It maps characters to
+        strings of bits.
+        E.g.: 'a' -> '001', 'b' -> '11'.
+
+        This operation is O(n).
+        """
         encoding_table = dict()
         reversed_encoding_table = dict()
 
@@ -93,6 +107,8 @@ class HuffmanEncoder(object):
         return encoding_table
 
     def encode(self, source):
+        """Encode a text string `source` into a string of 0s and 1s according to
+        the `_encoding_table`."""
         self.source_bits = len(source) * 8
         encoded_data = ""
         for c in source:
@@ -110,49 +126,102 @@ class HuffmanEncoder(object):
         self.compression_rate = len(encoded_data) / (len(source) * 8)
         return encoded_data
 
-    def encoded_data_to_bytes(self, encoded_data):
+    def pack_data(self, encoded_data):
+        """Create a `bytearray` with two main pieces of information: the encoding
+        table and the compressed data. The encoding table is needed to decompress
+        the data.
+
+        - Pack encoding table
+            1. int with number of entries
+            2. encoding table
+                1. int with char representation
+                2. int with number of bites used by the path (implicitly the numbers of bytes too)
+                3. bytes of the path
+            3. int with the number of padding bits
+        - Pack the compressed data
+        """
         if self.encoded_bits % 8 != 0:
             raise Exception("The number of encoded bits isn't a multiple of 8.")
 
         encoded_bytes = bytearray()
+
+        # Save the number of entries of the encoding table.
+        encoded_bytes.append(len(self._encoding_table.keys()))
+
+        # Save the encoding table. This implies saving first an integer with the
+        # ASCII code of the represented char (99 = "c"); another integer with number of bits used
+        # by the bit_code (eg.: 011 = 3); and the bit_code itself.
+        for char, bit_code in self._encoding_table.items():
+            ascii_char_code = ord(char)
+            number_of_bits = len(bit_code)
+            bit_code_bytes = int(bit_code, 2)
+            encoded_bytes.append(ascii_char_code)
+            encoded_bytes.append(number_of_bits)
+            encoded_bytes.append(bit_code_bytes)
+
+        # Save the total bits used and the total padding bits used.
+        encoded_bytes.append(self.encoded_bits)  # data + padding
+        encoded_bytes.append(self.padding_bits)
+
+        # Save compressed data.
         for starting_point in range(0, self.encoded_bits, 8):
-            # print("### Encoding bytes:", encoded_data[starting_point: starting_point + 8])
             encoded_bytes.append(int(encoded_data[starting_point: starting_point + 8], 2))
 
-        # print("### Encoded bytes:", encoded_bytes)
-        # print("### Number of encoded bytes:", len(encoded_bytes))
         return encoded_bytes
 
-    def compress_text(self, source):
+    def compress_data(self, source):
+        """Compress a text string `source` according to the Huffman Coding algorithm."""
         self.generate_tree(source)
         self.generate_encoding_table()
         encoded_data = self.encode(source)
         print("# Encoded data:", encoded_data)
-        encoded_bytes = self.encoded_data_to_bytes(encoded_data)
+        encoded_bytes = self.pack_data(encoded_data)
         return encoded_bytes
 
     def decode_data(self, encoded_bytes):
-        reading_format = "0{}b".format(len(encoded_bytes) * 8)
-        encoded_bits = format(int.from_bytes(read_bytes, byteorder='big'), reading_format)
+        """Decode the compressed data from `encoded_bytes` into a string."""
+        encoding_table_entries = encoded_bytes.pop(0)
+        decoding_table = dict()
+
+        pos = 0
+        for i in range(encoding_table_entries):
+            char = chr(encoded_bytes[pos])
+            pos += 1
+            number_of_bits = encoded_bytes[pos]
+            pos += 1
+            number_of_bytes = (number_of_bits // 8) + 1
+            int_bit_code = encoded_bytes[pos: pos + number_of_bytes]
+            pos += number_of_bytes
+            bit_code = format(int.from_bytes(int_bit_code, byteorder="big"), "0{}b".format(number_of_bits))
+            decoding_table[bit_code] = char
+
+        # Read the number of padding bits.
+        number_of_encoded_bits = encoded_bytes[pos]
+        pos += 1
+        number_of_padding_bits = encoded_bytes[pos]
+        pos += 1
+
+        # Read the compressed data bytes.
+        compressed_data = encoded_bytes[pos:]
+
+        reading_format = "0{}b".format(len(compressed_data) * 8)
+        encoded_bits = format(int.from_bytes(compressed_data, byteorder="big"), reading_format)
         key = ""
         decoded_data = ""
-        for bit in encoded_bits[:self.encoded_bits - self.padding_bits]:
+        for bit in encoded_bits[:number_of_encoded_bits - number_of_padding_bits]:
             key += bit
-            if key in self._reversed_encoding_table:
-                decoded_data += self._reversed_encoding_table[key]
+            if key in decoding_table:
+                decoded_data += decoding_table[key]
                 key = ""
-        # print(decoded_data)
         return decoded_data
 
 
 # data = ["happy hip hop", "abracadabra"]
-data = ["happy hip hop"]
+data = ["""Lorem ipsum dolor sit amet, consectetur, dasjkdhas aaaaaaaaaaaaaa"""]
 
 if __name__ == "__main__":
     coder = HuffmanEncoder()
     for index, text in enumerate(data):
-        encoded_bytes = coder.compress_text(text)
-        # sys.stdout.buffer.write(encoded_bytes)
-        with open("compressed_data_2", "rb") as f:
-            read_bytes = f.read()
-            print("# Decoded data:", coder.decode_data(read_bytes))
+        encoded_bytes = coder.compress_data(text)
+        print("# compressed data:", encoded_bytes)
+        print("# Decoded data:", coder.decode_data(encoded_bytes))
