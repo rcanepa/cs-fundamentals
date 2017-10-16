@@ -20,6 +20,15 @@ cat huffman_encoding.py | ./huffman_encoding.py -c | ./huffman_encoding.py -d
 ````
 diff <(cat huffman_encoding.py | ./huffman_encoding.py -c | ./huffman_encoding.py -d) huffman_encoding.py
 ````
+*Count the number of bytes after the compression.*
+````
+cat huffman_encoding.py | ./huffman_encoding.py -c | wc -c
+````
+
+*Compute the compression rate (compressed / uncompressed).*
+````
+expr 100 \* $(cat huffman_encoding.py | ./huffman_encoding.py -c | wc -c) / $(cat huffman_encoding.py | wc -c)
+````
 
 ### Things to improve
 * Allow the user to specify a file as input and another one as output.
