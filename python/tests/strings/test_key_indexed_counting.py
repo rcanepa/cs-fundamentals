@@ -37,7 +37,7 @@ class KeyIndexedCountingTest(unittest.TestCase):
         manually_sorted_keys = sorted([getattr(x, "section") for x in self.students])
         self.assertEqual(keys, manually_sorted_keys)
 
-    def test_is_table(self):
+    def test_is_stable(self):
         sorted_data = key_indexed_counting_sort(self.students, "section")
         values = [getattr(x, "name") for x in sorted_data]
 
