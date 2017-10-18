@@ -1,4 +1,4 @@
-/*LSD (least significant digit) string sort algorithm.
+/* LSD (least significant digit) string sort algorithm.
 This algorithm is based on the Key-indexed counting sorting algorithm. The
 main difference is that LSD run the same operation for W characters instead
 of just 1 integer. It is assumed that strings are fixed length and that W
@@ -43,6 +43,8 @@ And so on until the end:
     ]
 */
 
+"use strict";
+
 function initializeArray(size, defaultValue) {
   var a = [];
   for (var i = 0; i < size; i++) a.push(defaultValue);
@@ -83,7 +85,7 @@ function lsdRadixSort(data, W = 0, keyFn) {
 
     // Phase 3: distribute data.
     for (var k = 0; k < rowsToSort; k++) {
-      dataPosition = count[keyFn(data[k]).charCodeAt(i)];
+      var dataPosition = count[keyFn(data[k]).charCodeAt(i)];
       count[keyFn(data[k]).charCodeAt(i)]++;
       partiallySortedData[dataPosition] = data[k];
     }
