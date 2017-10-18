@@ -11,6 +11,8 @@ Main differences with the LSD string sort algorithm:
     - It's recursive.
 """
 
+# Radix: number of different possible characters.
+# 256 -> Extended ASCII.
 r = 256
 
 

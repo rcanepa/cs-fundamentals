@@ -6,6 +6,11 @@ Characteristics:
     - Stable (preserves original order).
     - Linear time O(n) when R is within a constant factor o N and when keys
       are integers between 0 and R - 1.
+
+Applications:
+    - Sort by area code.
+    - Sort by string first letter.
+    - Sort by age.
 """
 from collections import namedtuple
 
@@ -15,8 +20,11 @@ def _initialize_list(size, default_value):
 
 
 def key_indexed_counting_sort(data, sorting_field):
+    # Radix: number of different possible integers.
+    r = max([getattr(s, sorting_field) for s in data]) + 1
+
     # Initialize a list with max(section) + 2 zeros.
-    count = _initialize_list(max([getattr(s, sorting_field) for s in data]) + 2, 0)
+    count = _initialize_list(r + 1, 0)
 
     # Step 1: Compute section frequencies.
     # Calculate how many students are per section.
@@ -31,7 +39,7 @@ def key_indexed_counting_sort(data, sorting_field):
     # Step 2: Transform frequencies to indices.
     # Now `count` keeps track of the starting position of the students for
     # every section.
-    for index in range(len(count) - 1):
+    for index in range(r):
         count[index + 1] += count[index]
     # print(count)
     # => [0, 0, 3, 8, 14, 20]
@@ -93,6 +101,9 @@ if __name__ == "__main__":
         Student("Williams", 3),
         Student("Wilson", 4)
     ]
+    # In this case, R = 5 (0, 1, 2, 3, 4).
+    # `count` goes from 0 to 6, because position number 0 isn't used.
+    # So, the frequency of number 4 is store in count[4 + 1] (last available position).
 
     sorted_data = key_indexed_counting_sort(students, "section")
     print(sorted_data)
