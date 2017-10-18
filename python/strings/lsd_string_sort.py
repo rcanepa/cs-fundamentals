@@ -73,11 +73,11 @@ def lsd_sort(strings, key_length=None):
         partial_solution = _initialize_list(len(strings), None)
 
         for s in strings:
-            character = ord(s[cn])  # Transform the character to its int representation.
-            s_position = count[character]  # Find its starting point.
-            count[character] += 1  # Increment the starting position for that character.
+            ascii_code = ord(s[cn])  # Transform the character to its int representation.
+            s_position = count[ascii_code]  # Find its starting point.
+            count[ascii_code] += 1  # Increment the starting position for that character.
             partial_solution[s_position] = s  # Add the string in its partially final position.
-        
+
         # Replace the original list with the partially sorted list.
         strings = partial_solution
 
