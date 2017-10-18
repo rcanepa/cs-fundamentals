@@ -1,7 +1,7 @@
 "use strict";
 const utils = require("../utils");
 
-var testSizes = [100, 1000, 10000, 100000, 1000000, 10000000];
+var testSizes = [100, 1000, 10000, 100000, 1000000];
 var testTimeResults = [];
 
 testSizes.forEach(n => {
