@@ -2,6 +2,10 @@
 This sorting algorithm works sorting strings character by character
 from left to right.
 
+This implementation is based on the one presented in the book
+Algorithms 4th Edition by Robert Sedgewick and Kevin Wayne.
+http://algs4.cs.princeton.edu/50strings/
+
 
 Characteristics:
     - Stable (preserves original order).
@@ -9,6 +13,10 @@ Characteristics:
 Main differences with the LSD string sort algorithm:
     - Runs from left to right.
     - It's recursive.
+
+Possible optimizations:
+    - Run Insertion Sort when the list/bucket has less
+    than 15 strings.
 """
 
 # Radix: number of different possible characters.
