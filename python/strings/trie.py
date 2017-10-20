@@ -1,4 +1,4 @@
-"""Trie Data Structure
+"""Trie (radix tree / prefix tree).
 """
 
 
@@ -21,6 +21,8 @@ class Trie(object):
         self._root = Trie.Node("")
 
     def insert(self, key, value):
+        """Insert `value` associated with key `key` in the Trie. If `key` was
+        already part of the Trie, its value gets replaced."""
         def _insert(node, position):
 
             # The path isn't complete -> add a new Node.
@@ -33,7 +35,7 @@ class Trie(object):
                 node.value = value
                 return node
 
-            # Keep searching in the right link of the tree.
+            # Still not the end of the path, keep searching in the right link of the tree.
             next_link = Trie._get_char_code(key[position])
             node.links[next_link] = _insert(node.links[next_link], position + 1)
             return node
@@ -42,6 +44,7 @@ class Trie(object):
         return self
 
     def get(self, key):
+        """Return a node's value if the key exists in the Trie. None otherwise."""
         if not key:
             raise Exception(
                 "get requires a string key to perform a search."
@@ -55,7 +58,22 @@ class Trie(object):
         return _get(self._root, 0)
 
     def contains(self, key):
-        pass
+        """Return True is key is present on the Trie or false otherwise."""
+        if not key:
+            raise Exception(
+                "constains requires a string key to perform a search."
+            )
+
+        def _contains(node, position):
+            if node is None:
+                return False
+
+            if len(key) == position and node.value:
+                return True
+
+            return _contains(node.links[Trie._get_char_code(key[position])], position + 1)
+
+        return _contains(self._root, 0)
 
     def remove(self, key):
         pass
