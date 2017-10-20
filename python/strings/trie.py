@@ -15,10 +15,10 @@ class Trie(object):
         def __str__(self):
             return self.__repr__()
 
-    R = 256
+    R = 256  # radix / size of the alphabet allowed
 
     def __init__(self):
-        self._root = Trie.Node("")
+        self._root = Trie.Node(None)
 
     def insert(self, key, value):
         """Insert `value` associated with key `key` in the Trie. If `key` was
@@ -50,12 +50,8 @@ class Trie(object):
                 "get requires a string key to perform a search."
             )
 
-        def _get(node, position):
-            if len(key) == position:
-                return node.value
-            next_link = Trie._get_char_code(key[position])
-            return _get(node.links[next_link], position + 1) if node.links[next_link] else None
-        return _get(self._root, 0)
+        node = Trie._get(key, self._root, 0)
+        return node.value if node else node
 
     def contains(self, key):
         """Return True is key is present on the Trie or false otherwise."""
@@ -75,6 +71,46 @@ class Trie(object):
 
         return _contains(self._root, 0)
 
+    def keys(self):
+        """Return a list with all keys present in the Trie."""
+        return Trie._collect_words(self._root)
+
+    def keys_with_prefix(self, prefix):
+        """Return a list with all keys prefixed by `prefix`."""
+        keys = []
+        prefix_root_node = Trie._get(prefix, self._root, 0)
+        if prefix_root_node:
+            keys = Trie._collect_words(prefix_root_node)
+            keys = [prefix + k for k in keys]
+        return keys
+
+    @staticmethod
+    def _get(key, node, position):
+        if len(key) == position:
+            return node
+        next_link = Trie._get_char_code(key[position])
+        return Trie._get(key, node.links[next_link], position + 1) if node.links[next_link] else None
+
+    @staticmethod
+    def _collect_words(root_node):
+        """Return a list with all words sorted alphabetically starting from `root_node`.
+        The Trie is traversed in a in-order way using DFS. A string is a word only if it
+        has a value associated."""
+        words = []
+
+        def _collect(node, path=""):
+            if node.value is not None:
+                words.append(path)
+
+            for r in range(Trie.R):
+                next_node = node.links[r]
+                if next_node:
+                    _collect(next_node, path + chr(r))
+
+        _collect(root_node)
+
+        return words
+
     def remove(self, key):
         pass
 
@@ -93,12 +129,7 @@ class Trie(object):
 
 if __name__ == "__main__":
     trie = Trie()
-    trie.insert("a", 10)
-    assert trie.get("a") == 10
-    trie.insert("a", 11)
-    assert trie.get("a") == 11
-    trie.insert("b", 1)
-    assert trie.get("b") == 1
-    assert trie.get("c") == None
-    trie.insert("ab", 50)
-    assert trie.get("ab") == 50
+    words = ["a", "haus", "straße", "schwarz", "berlin", "bär", "mann", "frau", "flugzeug", "kinder", "bier"]
+    for i, w in enumerate(words):
+        trie.insert(w, i)
+    print(trie.keys_with_prefix("s"))

@@ -27,14 +27,72 @@ class TrieTest(unittest.TestCase):
         self.assertTrue(trie.contains("a"))
         self.assertFalse(trie.contains("ab"))
         trie.insert("b", 5)
-        self.assertFalse(trie.get("ab"))
-        self.assertTrue(trie.get("b"))
+        self.assertFalse(trie.contains("ab"))
+        self.assertTrue(trie.contains("b"))
         trie.insert("ab", 15)
-        self.assertTrue(trie.get("ab"))
-        self.assertFalse(trie.get("qwerty"))
-        self.assertFalse(trie.get("aa"))
-        self.assertFalse(trie.get("ac"))
+        self.assertTrue(trie.contains("ab"))
+        self.assertFalse(trie.contains("qwerty"))
+        self.assertFalse(trie.contains("aa"))
+        self.assertFalse(trie.contains("ac"))
         trie.insert("qwerty", 100)
-        self.assertTrue(trie.get("qwerty"))
-        self.assertFalse(trie.get("qwertyx"))
-        self.assertFalse(trie.get("qwert"))
+        self.assertTrue(trie.contains("qwerty"))
+        self.assertFalse(trie.contains("qwertyx"))
+        self.assertFalse(trie.contains("qwert"))
+
+    def test_contains_return_true_on_success(self):
+        trie = Trie()
+        words = ["a", "haus", "straße", "mann", "frau", "kinder", "bier"]
+        for i, w in enumerate(words):
+            trie.insert(w, i)
+        words_found = trie.keys()
+        self.assertEqual(set(words), set(words_found))
+
+    def test_keys_return_all_words(self):
+        trie = Trie()
+        words = [
+            "flughafen",
+            "a",
+            "haus",
+            "straße",
+            "schwarz",
+            "kindergarten",
+            "berlin",
+            "bär",
+            "mann",
+            "frau",
+            "flugzeug",
+            "kinder",
+            "bier",
+            "bahnhof"
+        ]
+        for i, w in enumerate(words):
+            trie.insert(w, i)
+        keys = trie.keys()
+        self.assertEqual(keys, sorted(words))
+
+    def test_keys_with_prefix(self):
+        trie = Trie()
+        words = [
+            "flughafen",
+            "a",
+            "haus",
+            "straße",
+            "schwarz",
+            "kindergarten",
+            "berlin",
+            "bär",
+            "mann",
+            "frau",
+            "flugzeug",
+            "kinder",
+            "bier",
+            "bahnhof"
+         ]
+        for i, w in enumerate(words):
+            trie.insert(w, i)
+        self.assertTrue(len(trie.keys_with_prefix("s")) == 2)
+        self.assertEqual(trie.keys_with_prefix("s"), ["schwarz", "straße"])
+        self.assertTrue(len(trie.keys_with_prefix("f")) == 3)
+        self.assertEqual(trie.keys_with_prefix("f"), ["flughafen", "flugzeug", "frau"])
+        self.assertTrue(len(trie.keys_with_prefix("x")) == 0)
+        self.assertEqual(trie.keys_with_prefix("x"), [])
