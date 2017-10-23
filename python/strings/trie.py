@@ -1,6 +1,8 @@
 """Trie (radix tree / prefix tree).
 """
 
+UPDATE = 2
+INSERT = 1
 
 class Trie(object):
 
@@ -19,6 +21,7 @@ class Trie(object):
 
     def __init__(self):
         self._root = Trie.Node(None)
+        self._n = 0
 
     def insert(self, key, value):
         """Insert `value` associated with key `key` in the Trie. If `key` was
@@ -32,16 +35,26 @@ class Trie(object):
 
             # This is the end of the path. Add value and return.
             if len(key) == position:
+                operation = UPDATE if node.value is not None else INSERT
                 node.value = value
-                return node
+                return node, operation
 
             # Still not the end of the path, keep searching in the right link of the tree.
             next_link = Trie._get_char_code(key[position])
-            node.links[next_link] = _insert(node.links[next_link], position + 1)
-            return node
+            node.links[next_link], operation = _insert(node.links[next_link], position + 1)
+            return node, operation
 
-        self._root = _insert(self._root, 0)
+        self._root, operation_performed = _insert(self._root, 0)
+        if operation_performed == INSERT:
+            self._n += 1
         return self
+
+    @property
+    def size(self):
+        return self._n
+
+    def is_empty(self):
+        return self.size == 0
 
     def get(self, key):
         """Return a node's value if the key exists in the Trie. None otherwise."""
@@ -57,16 +70,19 @@ class Trie(object):
         """Return True is key is present on the Trie or false otherwise."""
         if not key:
             raise Exception(
-                "constains requires a string key to perform a search."
+                "contains requires a string key to perform a search."
             )
 
         def _contains(node, position):
+            # There isn't a path for the key (=> the key doesn't exist).
             if node is None:
                 return False
 
-            if len(key) == position and node.value:
-                return True
+            # The end of the path was reached. If there is a value, the key exists.
+            if len(key) == position:
+                return True if node.value else False
 
+            # The end of the path hasn't been reached (=> keep searching).
             return _contains(node.links[Trie._get_char_code(key[position])], position + 1)
 
         return _contains(self._root, 0)
@@ -82,6 +98,8 @@ class Trie(object):
         if prefix_root_node:
             keys = [prefix + key for key in Trie._collect_words(prefix_root_node)]
         return keys
+
+    # def keys_that_match(self):
 
     @staticmethod
     def _get(key, node, position):

@@ -21,6 +21,25 @@ class TrieTest(unittest.TestCase):
         self.assertEqual(trie.get("qwertyx"), None)
         self.assertEqual(trie.get("qwert"), None)
 
+    def test_size_return_the_number_of_keys(self):
+        trie = Trie()
+        trie.insert("a", 10)
+        self.assertEqual(trie.size, 1)
+        trie.insert("b", 5)
+        self.assertEqual(trie.size, 2)
+        trie.insert("ab", 15)
+        self.assertEqual(trie.size, 3)
+
+    def test_is_empty(self):
+        trie = Trie()
+        self.assertTrue(trie.is_empty())
+        trie.insert("a", 10)
+        self.assertFalse(trie.is_empty())
+        trie.insert("b", 5)
+        self.assertFalse(trie.is_empty())
+        trie.insert("ab", 15)
+        self.assertFalse(trie.is_empty())
+
     def test_contains_return_true_on_success(self):
         trie = Trie()
         trie.insert("a", 10)
@@ -39,7 +58,7 @@ class TrieTest(unittest.TestCase):
         self.assertFalse(trie.contains("qwertyx"))
         self.assertFalse(trie.contains("qwert"))
 
-    def test_contains_return_true_on_success(self):
+    def test_keys_return_all_words(self):
         trie = Trie()
         words = ["a", "haus", "straße", "mann", "frau", "kinder", "bier"]
         for i, w in enumerate(words):
@@ -47,7 +66,7 @@ class TrieTest(unittest.TestCase):
         words_found = trie.keys()
         self.assertEqual(set(words), set(words_found))
 
-    def test_keys_return_all_words(self):
+    def test_keys_return_all_words_sorted(self):
         trie = Trie()
         words = [
             "flughafen",
@@ -70,7 +89,7 @@ class TrieTest(unittest.TestCase):
         keys = trie.keys()
         self.assertEqual(keys, sorted(words))
 
-    def test_keys_with_prefix(self):
+    def test_find_keys_with_prefix(self):
         trie = Trie()
         words = [
             "flughafen",
