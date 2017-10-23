@@ -89,14 +89,14 @@ class Trie(object):
 
     def keys(self):
         """Return a list with all keys present in the Trie."""
-        return Trie._collect_words(self._root)
+        return Trie._collect_keys(self._root)
 
     def keys_with_prefix(self, prefix):
         """Return a list with all keys prefixed by `prefix`."""
         keys = []
         prefix_root_node = Trie._get(prefix, self._root, 0)
         if prefix_root_node:
-            keys = [prefix + key for key in Trie._collect_words(prefix_root_node)]
+            keys = [prefix + key for key in Trie._collect_keys(prefix_root_node)]
         return keys
 
     # def keys_that_match(self):
@@ -109,15 +109,15 @@ class Trie(object):
         return Trie._get(key, node.links[next_link], position + 1) if node.links[next_link] else None
 
     @staticmethod
-    def _collect_words(root_node):
-        """Return a list with all words sorted alphabetically starting from `root_node`.
-        The Trie is traversed in a in-order way using DFS. A string is a word only if it
+    def _collect_keys(root_node):
+        """Return a list with all keys sorted alphabetically starting from `root_node`.
+        The Trie is traversed in a in-order way using DFS. A string is a keys only if it
         has a value associated."""
-        words = []
+        keys = []
 
         def _collect(node, path=""):
             if node.value is not None:
-                words.append(path)
+                keys.append(path)
 
             for r in range(Trie.R):
                 next_node = node.links[r]
@@ -126,7 +126,33 @@ class Trie(object):
 
         _collect(root_node)
 
-        return words
+        return keys
+
+    def keys_that_match(self, pattern):
+        """Return all keys that match `pattern`."""
+        keys = []
+
+        def _collect(node, path=""):
+            if node.value is not None and len(path) == len(pattern):
+                keys.append(path)
+
+            if len(path) == len(pattern):
+                return None
+
+            current_char = pattern[len(path)]
+            if current_char == ".":
+                for r in range(Trie.R):
+                    next_node = node.links[r]
+                    if next_node:
+                        _collect(next_node, path + chr(r))
+            else:
+                next_node = node.links[ord(current_char)]
+                if next_node:
+                    _collect(next_node, path + current_char)
+
+        _collect(self._root)
+
+        return keys
 
     def remove(self, key):
         pass
