@@ -80,8 +80,7 @@ class Trie(object):
         keys = []
         prefix_root_node = Trie._get(prefix, self._root, 0)
         if prefix_root_node:
-            keys = Trie._collect_words(prefix_root_node)
-            keys = [prefix + k for k in keys]
+            keys = [prefix + key for key in Trie._collect_words(prefix_root_node)]
         return keys
 
     @staticmethod

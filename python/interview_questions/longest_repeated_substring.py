@@ -8,7 +8,14 @@ Steps:
         provides a quadratic time O(N^2).
     2. Sort suffixes. This should be N * log(N) in time.
     3. Find LCP between adjacent suffixes.
+
+Usage:
+    This script can be use reading data from the standard input. Example:
+
+    cat ~/manifesto.txt | python3 -m interview_questions.longest_repeated_substring
 """
+import sys
+import time
 
 
 def lcp(s1, s2):
@@ -43,7 +50,18 @@ def lrs(text):
 
 
 if __name__ == "__main__":
-    s = "mississipi"
+    s = ""
+    t0 = time.time()
+    for line in sys.stdin:
+        s += line
+    t1 = time.time()
+    print("################################################################################")
+    print('-> Took {:.3f}ms to read the file.'.format((t1 - t0) * 1000))
+
+    t0 = time.time()
     r = lrs(s)
+    t1 = time.time()
+    print('-> Took {:.3f}ms to find the longest repeated substring the file.'.format((t1 - t0) * 1000))
+    print("################################################################################")
+    print("The longest repeated substring is:")
     print(r)
-    assert r == "issi"
