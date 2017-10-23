@@ -4,6 +4,7 @@
 UPDATE = 2
 INSERT = 1
 
+
 class Trie(object):
 
     class Node(object):
@@ -51,9 +52,11 @@ class Trie(object):
 
     @property
     def size(self):
+        """Return the number of inserted keys."""
         return self._n
 
     def is_empty(self):
+        """Return True if there is no key in the Trie."""
         return self.size == 0
 
     def get(self, key):
@@ -99,10 +102,9 @@ class Trie(object):
             keys = [prefix + key for key in Trie._collect_keys(prefix_root_node)]
         return keys
 
-    # def keys_that_match(self):
-
     @staticmethod
     def _get(key, node, position):
+        """Return the node that match key `key`."""
         if len(key) == position:
             return node
         next_link = Trie._get_char_code(key[position])
@@ -155,6 +157,8 @@ class Trie(object):
         return keys
 
     def longest_prefix_key(self, key):
+        """Return the longest key that is smaller than `key` (its longest
+        prefix)."""
         prefix_keys = []
 
         def find_prefix_keys(node, position=0, path=""):
