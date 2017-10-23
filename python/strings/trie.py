@@ -154,6 +154,25 @@ class Trie(object):
 
         return keys
 
+    def longest_prefix_key(self, key):
+        prefix_keys = []
+
+        def find_prefix_keys(node, position=0, path=""):
+            if len(path) == len(key):
+                return None
+
+            if node.value is not None:
+                prefix_keys.append(path)
+
+            current_char = key[position]
+            next_link = ord(current_char)
+
+            if node.links[next_link]:
+                find_prefix_keys(node.links[next_link], position + 1, path + current_char)
+
+        find_prefix_keys(self._root)
+        return prefix_keys.pop() if prefix_keys else ""
+
     def remove(self, key):
         pass
 

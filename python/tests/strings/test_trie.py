@@ -138,3 +138,18 @@ class TrieTest(unittest.TestCase):
         self.assertEqual(trie.keys_that_match("..."), ["abc", "axc", "txc"])
         self.assertEqual(trie.keys_that_match(".x."), ["axc", "txc"])
         self.assertEqual(trie.keys_that_match("t.."), ["txc"])
+
+    def test_longest_prefix_key(self):
+        trie = Trie()
+        trie.insert("abc", 1)
+        self.assertEqual(trie.longest_prefix_key("abc"), "")
+        self.assertEqual(trie.longest_prefix_key("ab"), "")
+        trie.insert("abcdefg", 10)
+        self.assertEqual(trie.longest_prefix_key("abcdefg"), "abc")
+        self.assertEqual(trie.longest_prefix_key("abc"), "")
+        trie.insert("abcdefghi", 100)
+        self.assertEqual(trie.longest_prefix_key("abcdefghi"), "abcdefg")
+        trie.insert("abcdefgh", 200)
+        self.assertEqual(trie.longest_prefix_key("abcdefghi"), "abcdefgh")
+        trie.insert("abcx", 300)
+        self.assertEqual(trie.longest_prefix_key("abcx"), "abc")
