@@ -178,7 +178,40 @@ class Trie(object):
         return prefix_keys.pop() if prefix_keys else ""
 
     def remove(self, key):
-        pass
+
+        def _remove(node, position):
+            if node is None:
+                return node, False
+
+            if len(key) == position:
+                deleted = True if node.value is not None else False
+                node.value = None
+
+                # The node has children. There is nothing else to do.
+                if Trie._has_children(node):
+                    return node, deleted
+                # The node hasn't children. Delete the node a do the same check going back.
+                else:
+                    return None, deleted
+
+            next_link = ord(key[position])
+            node.links[next_link], result = _remove(node.links[next_link], position + 1)
+
+            # Check if the node with the key was deleted and if the current node has children.
+            # If it doesn't delete this node too.
+            if node.links[next_link] is None and not Trie._has_children(node):
+                return None, result
+            return node, result
+
+        self._root, key_deleted = _remove(self._root, 0)
+        if key_deleted:
+            self._n -= 1
+
+        return self
+
+    @staticmethod
+    def _has_children(node):
+        return len([True for link in node.links if link is not None]) > 0
 
     @staticmethod
     def _get_char_code(char):
