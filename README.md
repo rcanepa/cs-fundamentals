@@ -1,4 +1,9 @@
 # cs-fundamentals
 
+## WIP!
+
 ## How to execute a Python file?
-````python3 -m sorting.merge_sort````
+````
+cd python
+python3 -m sorting.merge_sort
+````
