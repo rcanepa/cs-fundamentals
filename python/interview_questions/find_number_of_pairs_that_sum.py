@@ -1,5 +1,5 @@
-"""
-Find all pairs from the array A that sum S.
+"""Find all pairs from the array A that sum S.
+
 Example:
     Input
         A = [5, 15, 8, 9, 3, 2, -1, 4]

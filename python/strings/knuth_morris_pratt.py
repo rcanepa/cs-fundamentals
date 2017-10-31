@@ -119,8 +119,6 @@ def kmp(text, pattern, start=0):
 
 
 def main():
-    # text = "abaxabcaabababcaaxczc sdas d abababca daskjdh awqu 6sdauy abababca cxzc xzc"
-    # pattern = "abababca"
     text = ""
     pattern = "house"
     for line in sys.stdin:
