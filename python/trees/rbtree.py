@@ -1,7 +1,7 @@
 """
 This file contains the implementation of a 'left-leaning'
 Red Black Binary Search Tree (LLRBT). The implementation is based
-on the one described on the book 'Algorithms Fourth Edition'
+on the one described in the book 'Algorithms Fourth Edition'
 by Robert Sedgewick and Kevin Wayne.
 
 A LLRBT is a Tree in which every Node have one of

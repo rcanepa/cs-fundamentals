@@ -19,6 +19,8 @@ cat huffman_encoding.py | ./huffman_encoding.py -c | ./huffman_encoding.py -d
 
 ````
 diff <(cat huffman_encoding.py | ./huffman_encoding.py -c | ./huffman_encoding.py -d) huffman_encoding.py
+diff <(cat ~/Downloads/iliad.mb.txt | ./huffman_encoding.py -c | ./huffman_encoding.py -d) ~/Downloads/iliad.mb.txt
+diff <(cat ~/Downloads/leipzig300k.txt | ./huffman_encoding.py -c | ./huffman_encoding.py -d) ~/Downloads/leipzig300k.txt
 ````
 *Count the number of bytes after the compression.*
 ````
