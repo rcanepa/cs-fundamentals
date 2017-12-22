@@ -354,6 +354,19 @@ class LLRBT(object):
             yield from _in_order_traversal(node.right)
         yield from _in_order_traversal(self._root)
 
+    def in_order_traversal_iterative(self):
+        def _in_order_traversal_iterative(node):
+            stack = []
+            while stack or node:
+                if node:
+                    stack.append(node)
+                    node = node.left
+                else:
+                    node = stack.pop()
+                    yield node
+                    node = node.right
+        yield from _in_order_traversal_iterative(self._root)
+
     def post_order_traversal(self):
         """Return a generator to traverse the Tree in post-order."""
         def _post_order_traversal(node):

@@ -234,6 +234,14 @@ class RedBlackBSTreeTest(unittest.TestCase):
             values.append(v.value)
         self.assertEqual(values, sorted(initialization_list))
 
+    def test_in_order_traversal_iterative_return_values_increasing_order(self):
+        initialization_list = ["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"]
+        tree = LLRBT(initialization_list)
+        values = []
+        for v in tree.in_order_traversal_iterative():
+            values.append(v.value)
+        self.assertEqual(values, sorted(initialization_list))
+
     def test_integrity(self):
         initialization_list = create_random_array(1000)
         tree = LLRBT(initialization_list)
