@@ -116,7 +116,8 @@ if __name__ == "__main__":
         ("babad", "bab"),
         ("cbbd", "bb"),
         ("abaabc", "baab"),
-        ("madama", "madam")
+        ("madama", "madam"),
+        ("jklollolkidding", "klollolk")
     ]
 
     for string, expected_result in test_cases:

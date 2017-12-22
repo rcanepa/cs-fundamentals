@@ -14,41 +14,47 @@ always be true:
 """
 
 
-def inverse(fn, target):
-    start = 0
-    end = target
-    middle = (end + start) // 2
-    approximation = fn(middle)
-    while approximation != target:
-        if approximation < target:
-            start = middle
-        else:
-            end = middle
+def inverse(fn):
+    def compute_x(y):
+        start = 0
+        end = y
         middle = (end + start) // 2
         approximation = fn(middle)
-    return middle
+        while approximation != y:
+            if approximation < y:
+                start = middle
+            else:
+                end = middle
+            middle = (end + start) // 2
+            approximation = fn(middle)
+        return middle
+    return compute_x
 
 
 if __name__ == "__main__":
     test_cases = [
         (
             lambda x: x**2,
-            9,
-            3
+            [9, 100, 81],
+            [3, 10, 9]
         ),
         (
             lambda x: x + 1,
-            10,
-            9
+            [10, 4000],
+            [9, 3999]
         ),
         (
             lambda x: x * 2,
-            12,
-            6
+            [12, 20, 50000],
+            [6, 10, 25000]
         )
     ]
 
-    for input_function, input_y, expected_result in test_cases:
-        result = inverse(input_function, input_y)
-        print("# ->", input_function, input_y, expected_result, result)
-        assert result == expected_result
+    for test_n, (input_function, ys, xs) in enumerate(test_cases, start=1):
+        print("Test case #", test_n, ", function ", input_function.__name__)
+        result = []
+        for y in ys:
+            print("\t\tTesting y =", y)
+            inverse_fn = inverse(input_function)
+            result.append(inverse_fn(y))
+        assert result == xs
