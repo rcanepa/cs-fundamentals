@@ -23,16 +23,6 @@ type LinkedList struct {
 	size int
 }
 
-// Len returns the number of Nodes the LinkedList has
-func (l *LinkedList) Len() int {
-	return l.size
-}
-
-// IsEmpty returns `true` if the LinkedList has no Nodes
-func (l *LinkedList) IsEmpty() bool {
-	return l.size == 0
-}
-
 // lastNode returns a pointer to the last Node
 func (l *LinkedList) lastNode() *Node {
 	if l.head == nil {
@@ -51,6 +41,16 @@ func New() LinkedList {
 		size: 0,
 	}
 	return ll
+}
+
+// Len returns the number of Nodes the LinkedList has
+func (l *LinkedList) Len() int {
+	return l.size
+}
+
+// IsEmpty returns `true` if the LinkedList has no Nodes
+func (l *LinkedList) IsEmpty() bool {
+	return l.size == 0
 }
 
 // Front returns the first Node of a LinkedList
