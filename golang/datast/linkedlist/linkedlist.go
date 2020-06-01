@@ -4,27 +4,6 @@ import (
 	"fmt"
 )
 
-/*
-
-// Inspired by Golang official implementation[1]
-
-func main() {
-	// Create a new list and put some numbers in it.
-	l := list.New()
-	e4 := l.PushBack(4)
-	e1 := l.PushFront(1)
-	l.InsertBefore(3, e4)
-	l.InsertAfter(2, e1)
-
-	// Iterate through list and print its contents.
-	for e := l.Front(); e != nil; e = e.Next() {
-		fmt.Println(e.Value)
-	}
-}
-
-// [1] https://golang.org/pkg/container/list/
-*/
-
 type Node struct {
 	value int
 	next  *Node
@@ -38,24 +17,28 @@ func (n *Node) Value() int {
 	return n.value
 }
 
-func newNode(value int) Node {
-	return Node{value: value}
-}
-
 // LinkedList provides a constructor for a linked list
 type LinkedList struct {
-	Head    *Node
-	Next    *Node
-	Size    int
-	IsEmpty func() bool
+	head *Node
+	size int
+}
+
+// Len returns the number of Nodes the LinkedList has
+func (l *LinkedList) Len() int {
+	return l.size
+}
+
+// IsEmpty returns `true` if the LinkedList has no Nodes
+func (l *LinkedList) IsEmpty() bool {
+	return l.size == 0
 }
 
 // lastNode returns a pointer to the last Node
 func (l *LinkedList) lastNode() *Node {
-	if l.Head == nil {
+	if l.head == nil {
 		return nil
 	}
-	curr := l.Head
+	curr := l.head
 	for curr.Next() != nil {
 		curr = curr.Next()
 	}
@@ -65,73 +48,73 @@ func (l *LinkedList) lastNode() *Node {
 // New creates a new LinkedList instance
 func New() LinkedList {
 	ll := LinkedList{
-		Size: 0,
+		size: 0,
 	}
 	return ll
 }
 
 // Front returns the first Node of a LinkedList
 func (l *LinkedList) Front() *Node {
-	return l.Head
+	return l.head
 }
 
 // PushFront inserts a Node at the front of a LinkedList
 func (l *LinkedList) PushFront(value int) *Node {
-	node := newNode(value)
-	if l.Head == nil {
-		l.Head = &node
+	node := Node{value: value}
+	if l.head == nil {
+		l.head = &node
 	} else {
-		node.next = l.Head
-		l.Head = &node
+		node.next = l.head
+		l.head = &node
 	}
-	l.Size++
+	l.size++
 	return &node
 }
 
 // PushBack inserts a Node at the end of the LinkedList
 func (l *LinkedList) PushBack(value int) *Node {
-	if l.Head == nil {
+	if l.head == nil {
 		return l.PushFront(value)
 	}
 	lastNode := l.lastNode()
-	node := newNode(value)
+	node := Node{value: value}
 	lastNode.next = &node
-	l.Size++
+	l.size++
 	return &node
 }
 
 // PopFront removes and returns the first Node of the LinkedList
 func (l *LinkedList) PopFront() *Node {
-	if l.Head == nil {
+	if l.head == nil {
 		return nil
 	}
-	n := l.Head
-	l.Head = l.Head.next
-	l.Size--
+	n := l.head
+	l.head = l.head.next
+	l.size--
 	return n
 }
 
 // PopBack removes and returns the last Node of the LinkedList
 func (l *LinkedList) PopBack() *Node {
-	if l.Head == nil {
+	if l.head == nil {
 		return nil
 	}
-	if l.Head.Next() == nil {
+	if l.head.Next() == nil {
 		return l.PopFront()
 	}
-	curr := l.Head
+	curr := l.head
 	for curr.Next().Next() != nil {
 		curr = curr.Next()
 	}
 	last := curr.Next()
 	curr.next = nil
-	l.Size--
+	l.size--
 	return last
 }
 
 // ToString prints a string representation
 func (l *LinkedList) ToString() string {
-	s := fmt.Sprintf("LinkedList{Size: %d, Nodes: ", l.Size)
+	s := fmt.Sprintf("LinkedList{size: %d, Nodes: ", l.Len())
 	for n := l.Front(); n != nil; n = n.Next() {
 		s += fmt.Sprintf("%d->", n.Value())
 	}
