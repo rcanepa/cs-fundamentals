@@ -50,6 +50,18 @@ type LinkedList struct {
 	IsEmpty func() bool
 }
 
+// lastNode returns a pointer to the last Node
+func (l *LinkedList) lastNode() *Node {
+	if l.Head == nil {
+		return nil
+	}
+	curr := l.Head
+	for curr.Next() != nil {
+		curr = curr.Next()
+	}
+	return curr
+}
+
 // New creates a new LinkedList instance
 func New() LinkedList {
 	ll := LinkedList{
@@ -81,13 +93,9 @@ func (l *LinkedList) PushBack(value int) *Node {
 	if l.Head == nil {
 		return l.PushFront(value)
 	}
-
-	n := l.Front()
-	for n.Next() != nil {
-		n = n.Next()
-	}
+	lastNode := l.lastNode()
 	node := newNode(value)
-	n.next = &node
+	lastNode.next = &node
 	l.Size++
 	return &node
 }
@@ -99,4 +107,15 @@ func (l *LinkedList) ToString() string {
 		s += fmt.Sprintf("%d->", n.Value())
 	}
 	return s + fmt.Sprintf("}")
+}
+
+// PopFront removes and returns the first Node of the LinkedList
+func (l *LinkedList) PopFront() *Node {
+	if l.Head == nil {
+		return nil
+	}
+	n := l.Head
+	l.Head = l.Head.next
+	l.Size--
+	return n
 }

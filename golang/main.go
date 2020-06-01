@@ -17,4 +17,9 @@ func main() {
 	l.PushFront(0)
 	l.PushBack(50)
 	fmt.Println(l.ToString())
+	for n := l.PopFront(); n != nil; n = l.PopFront() {
+		fmt.Print("Removing ", n.Value(), " the front")
+		fmt.Println(l.ToString())
+
+	}
 }
