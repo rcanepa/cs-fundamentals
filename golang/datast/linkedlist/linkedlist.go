@@ -100,15 +100,6 @@ func (l *LinkedList) PushBack(value int) *Node {
 	return &node
 }
 
-// ToString prints a string representation
-func (l *LinkedList) ToString() string {
-	s := fmt.Sprintf("LinkedList{Size: %d, Nodes: ", l.Size)
-	for n := l.Front(); n != nil; n = n.Next() {
-		s += fmt.Sprintf("%d->", n.Value())
-	}
-	return s + fmt.Sprintf("}")
-}
-
 // PopFront removes and returns the first Node of the LinkedList
 func (l *LinkedList) PopFront() *Node {
 	if l.Head == nil {
@@ -118,4 +109,31 @@ func (l *LinkedList) PopFront() *Node {
 	l.Head = l.Head.next
 	l.Size--
 	return n
+}
+
+// PopBack removes and returns the last Node of the LinkedList
+func (l *LinkedList) PopBack() *Node {
+	if l.Head == nil {
+		return nil
+	}
+	if l.Head.Next() == nil {
+		return l.PopFront()
+	}
+	curr := l.Head
+	for curr.Next().Next() != nil {
+		curr = curr.Next()
+	}
+	last := curr.Next()
+	curr.next = nil
+	l.Size--
+	return last
+}
+
+// ToString prints a string representation
+func (l *LinkedList) ToString() string {
+	s := fmt.Sprintf("LinkedList{Size: %d, Nodes: ", l.Size)
+	for n := l.Front(); n != nil; n = n.Next() {
+		s += fmt.Sprintf("%d->", n.Value())
+	}
+	return s + fmt.Sprintf("}")
 }
