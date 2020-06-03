@@ -112,8 +112,8 @@ func (l *LinkedList) PopBack() *Node {
 	return last
 }
 
-// ToString prints a string representation
-func (l *LinkedList) ToString() string {
+// String prints a string representation
+func (l *LinkedList) String() string {
 	s := fmt.Sprintf("LinkedList{size: %d, Nodes: ", l.Len())
 	for n := l.Front(); n != nil; n = n.Next() {
 		s += fmt.Sprintf("%d->", n.Value())
