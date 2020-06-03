@@ -2,7 +2,7 @@ package linkedlist
 
 import "testing"
 
-func TestDummy(t *testing.T) {
+func TestSuite(t *testing.T) {
 	l := New()
 
 	if !l.IsEmpty() {
