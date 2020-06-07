@@ -50,10 +50,8 @@ func Sort(elements []int) {
 	if len(elements) <= 1 {
 		return
 	}
-
-	from, to := 0, len(elements)
-	mid := (from + to) / 2
-	left, right := elements[from:mid], elements[mid:]
+	mid := len(elements) / 2
+	left, right := elements[:mid], elements[mid:]
 	Sort(left)
 	Sort(right)
 	merge(left, right)
